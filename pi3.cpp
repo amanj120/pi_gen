@@ -12,16 +12,45 @@ using Int     = uint64_t;
 using IntPair = pair<Int, Int>;
 using BigInt  = vector<Int>;
 
-constexpr Int max32 = 0xffffffff;
+constexpr uint64_t half_64 = 0xffffffff;
+constexpr uint32_t half_32 = 0xffff;
+constexpr uint16_t half_16 = 0xff;
+constexpr uint8_t  half_8  = 0xf;
 
 // least significant bits
-Int rh(const Int x) {
-    return x & max32;
+uint64_t rh(const uint64_t x) {
+    return x & half_64;
+}
+// most significant bits
+uint64_t lh(const uint64_t x) {
+    return (x >> 32) & half_64;
 }
 
+// least significant bits
+uint32_t rh(const uint32_t x) {
+    return x & half_32;
+}
 // most significant bits
-Int lh(const Int x) {
-    return (x >> 32) & max32;
+uint32_t lh(const uint32_t x) {
+    return (x >> 16) & half_32;
+}
+
+// least significant bits
+uint16_t rh(const uint16_t x) {
+    return x & half_16;
+}
+// most significant bits
+uint16_t lh(const uint16_t x) {
+    return (x >> 8) & half_16;
+}
+
+// least significant bits
+uint8_t rh(const uint8_t x) {
+    return x & half_16;
+}
+// most significant bits
+uint8_t lh(const uint8_t x) {
+    return (x >> 4) & half_8;
 }
 
 // Returns in little-endian order
@@ -47,10 +76,10 @@ IntPair mul(const Int x, const Int y) {
 // c = a * b
 void mul(const BigInt& a, const Int b, BigInt& c) {
     Int carry = 0;
-    c.clear();
+    c.resize(a.size());
     for (auto i = 0; i < a.size(); i++) {
         auto const [pl, pr] = mul(a[i], b);
-        c.push_back(carry + pl);
+        c[i] = (carry + pl);
         if (c[i] < carry) {
             carry = pr + 1;
         } else {
@@ -61,24 +90,6 @@ void mul(const BigInt& a, const Int b, BigInt& c) {
         c.push_back(carry);
     }
 }
-
-// a *= b
-void muleq(BigInt& a, const Int b) {
-    Int carry = 0;
-    for (auto i = 0; i < a.size(); i++) {
-        auto const [pl, pr] = mul(a[i], b);
-        a[i] = carry + pl;
-        if (a[i] < carry) {
-            carry = pr + 1;
-        } else {
-            carry = pr;
-        }
-    }
-    if (carry != 0) {
-        a.push_back(carry);
-    }
-}
-
 
 // a -= b
 void diffeq(BigInt& a, const BigInt& b) {
@@ -126,14 +137,14 @@ void sumeq(BigInt& a, const BigInt& b) {
     }
 }
 
-// a > b
-bool gt(const BigInt& a, const BigInt& b) {
+// a >= b
+bool ge(const BigInt& a, const BigInt& b) {
     if (a.size() != b.size()) {
         return a.size() > b.size();
     }
-    for (auto i = a.size(); i >= 0; --i) {
-        if (a[i - 1] < b[i - 1]) {
-            return false;
+    for (auto i = a.size(); i > 0; --i) {
+        if (a[i - 1] != b[i - 1]) {
+            return a[i - 1] > b[i - 1];
         }
     }
     return true;
@@ -150,6 +161,13 @@ bool prune(BigInt& a, BigInt& b, BigInt& c) {
     return false;
 }
 
+// General Purpose functions:
+// X += A * B
+// X += A
+// X *= A
+// X -= A
+// X >= A
+
 int main(int argc, char* argv[]) {
     assert(argc == 2);
     Int N = std::stoull(argv[1]);
@@ -162,65 +180,50 @@ int main(int argc, char* argv[]) {
     BigInt n1 = {0};
     BigInt n2 = {1};
     BigInt n3 = {0};
-    BigInt n4 = {0};
 
-    for (Int i = 1; i <= N; i++) {
-        if (prune(n0, n1, n2)) {
-            assert(!prune(n0, n1, n2));
-        }
+    Int x0 = 5UL;
+    Int x1 = 300UL;
+    Int x2 = 30UL;
+    Int x3 = 3UL;
+    Int i  = 1UL;
 
+    while (N >= i) {
         if (i % 1000 == 0) {
             std::cerr << i << std::endl;
         }
+        
+        // n1 = (n0 * x0) + n1
+        // Y  = A * B + C
+        // n1 += (n0 * x3)
+        mul(n0, x3, n3);
+        sumeq(n1, n3);
 
-        const Int x0 = i * ((2UL * i) - 1UL);
-        const Int x1 = ((5UL * i) - 2UL);
-        const Int x2 = (27UL * i) - 12UL;
-        const Int x3 = (3UL * ((3UL * i) + 1UL) * ((3UL * i) + 2UL)) >> 1UL;
-        const Int x4 = x3 * 10;
-
-        muleq(n2, x3);          // n2 *= x3
-        mul(n0, x1, n3);        // n3  = n0 * x1
-        sumeq(n1, n3);          // n1 += n3
-        muleq(n1, x4);          // n1 *= x4
-        mul(n0, x0, n3);        // n3  = n0 * x0
-        mul(n3, 5, n0);         // n0  = n3 * 5
-        muleq(n3, x2);          // n3 *= x2
-        sumeq(n3, n1);          // n3 += n1
-
-        // n2 = n2 * x3
-        // n1 = (n1 + (n0 * x1)) * (x3 * 10)
-        // n3 = (n0 * x0 * x2) + n1
-        // n0 = n0 * x0 * 5
-        // y  = n3 // (n2 * 10)
-        // n1 = n1 - (n2 * 10 * y)
-
-        mul(n2, 50, n4);
-        if (gt(n3, n4)) {
-
-        } else {
-
-        }
-
-
-        mul(n2, 30, n4);        // n4  = n2 * 10 * 3
-        while (ge(n3, n4)) {
-            y += 3;
-            diffeq(n3, n4);
-            diffeq(n1, n4);
-        }
-        mul(n2, 10, n4);        // n4  = n2 * 10 * 1
-        while (ge(n3, n4)) {
+        char y = '0';
+        while (ge(n1, n2)) {
             y += 1;
-            diffeq(n3, n4);
-            diffeq(n1, n4);
+            diffeq(n1, n2);
         }
-
-        // Average of 14.2 O(n) instructions
-        
-        
-        assert(y < 10);
+        assert(y <= '9');
         pi << y;
+
+        mul(n0, x0, n0);    // n0 *= x0
+        mul(n1, x1, n1);    // n1 *= x1
+        mul(n2, x2, n2);    // n2 *= x2
+
+        x0 += 5;
+        x0 += (i * 20);
+
+        x1 += 135;
+        x1 += 135;
+        x1 += (i * 135);
+        x1 += (i * 135);
+
+        x2 += 27;
+        x2 += (i * 27);
+
+        x3 += 5;
+
+        i  += 1;
     }
 
     std::cout << pi.str() << std::endl;
