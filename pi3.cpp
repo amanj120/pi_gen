@@ -105,6 +105,7 @@ void saxpy(BigInt& s, const BigInt& a, const Int& x, const BigInt& y) {
     // mul
     Int p_carry = 0; // carry for product
     Int s_carry = 0; // carry for sum
+
     if (a.size() >= y.size()) {
         s.resize(a.size() + 1, 0UL);
     } else {
@@ -118,24 +119,22 @@ void saxpy(BigInt& s, const BigInt& a, const Int& x, const BigInt& y) {
         if (idx < a.size()) {
             auto const [pl, pr] = mul(a[idx], x);
             s_idx = p_carry + pl;
-            if (s_idx < p_carry) {
-                p_carry = pr + 1;
-            } else {
-                p_carry = pr;
-            }
+            p_carry = pr;
+            if (s_idx < pl) {
+                p_carry += 1;
+            } 
         } else if (idx == a.size()) {
             s_idx = p_carry;
-            p_carry = 0;
         }
 
         if (idx < y.size()) {
             const Int old_si = s_idx;
             s_idx += y[idx] + s_carry;
-            if (s_idx > old_si || (s_idx == old_si && s_carry == 0)) { // no overflow
+            if (s_idx > old_si) {
                 s_carry = 0;
-            } else {
+            } else if (s_idx < old_si) {
                 s_carry = 1;
-            }
+            } // else if s_idx == old_si then carry stays the same
         } else if (s_carry > 0) {
             s_idx += s_carry;
             if (s_idx != 0 && s_carry == 1) { // no overflow
