@@ -131,9 +131,7 @@ void saxpy(BigInt& s, const BigInt& a, const Int& x, const BigInt& y) {
         if (idx < y.size()) {
             const Int old_si = s_idx;
             s_idx += y[idx] + s_carry;
-            if (s_idx > old_si) { // no overflow
-                s_carry = 0; 
-            } else if (s_idx == old_si && s_carry == 0) { // also no overflow
+            if (s_idx > old_si || (s_idx == old_si && s_carry == 0)) { // no overflow
                 s_carry = 0;
             } else {
                 s_carry = 1;
