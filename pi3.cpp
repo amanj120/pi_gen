@@ -100,67 +100,21 @@ bool diffeq(BigInt& a, const BigInt& b) {
     return true;
 }
 
-// c = a * b
-void mul(const BigInt& a, const Int b, BigInt& c) {
-    Int carry = 0;
-    c.resize(a.size());
-    for (auto i = 0; i < a.size(); i++) {
-        auto const [pl, pr] = mul(a[i], b);
-        c[i] = (carry + pl);
-        if (c[i] < carry) {
-            carry = pr + 1;
-        } else {
-            carry = pr;
-        }
-    }
-    c.push_back(carry);
-
-    while (c.back() == 0 && c.size() > 1) {
-        c.pop_back();
-    }
-}
-
-// a += b
-void sumeq(BigInt& a, const BigInt& b) {
-    Int carry = 0;
-    const auto m = a.size() >= b.size() ? a.size() : b.size();
-    for (auto i = 0; i < m; i++) {
-        if (i == a.size()) {
-            a.push_back(b[i] + carry);
-            if (carry == 1 && a[i] != 0) {
-                carry = 0;
-            }
-        } else if (i >= b.size()) {
-            a[i] += carry;
-            if (carry == 1 && a[i] != 0) {
-                carry = 0;
-            }
-        } else {
-            auto const old_ai = a[i];
-            a[i] += b[i];
-            a[i] += carry;
-            if (a[i] > old_ai || (a[i] == old_ai && carry == 0)) {
-                carry = 0;
-            } else {
-                carry = 1;
-            }
-        }
-    }
-}
-
 // s = a * x + y
 void saxpy(BigInt& s, const BigInt& a, const Int& x, const BigInt& y) {
     // mul
     Int p_carry = 0; // carry for product
     Int s_carry = 0; // carry for sum
-    Int s_idx   = 0;
     if (a.size() >= y.size()) {
         s.resize(a.size() + 1, 0UL);
     } else {
         s.resize(y.size() + 1, 0UL);
     }
 
+    Int s_idx; 
     for (size_t idx = 0; idx < s.size(); idx++) {
+        s_idx = 0;
+        
         if (idx < a.size()) {
             auto const [pl, pr] = mul(a[idx], x);
             s_idx = p_carry + pl;
@@ -169,7 +123,7 @@ void saxpy(BigInt& s, const BigInt& a, const Int& x, const BigInt& y) {
             } else {
                 p_carry = pr;
             }
-        } else {
+        } else if (idx == a.size()) {
             s_idx = p_carry;
             p_carry = 0;
         }
@@ -184,12 +138,13 @@ void saxpy(BigInt& s, const BigInt& a, const Int& x, const BigInt& y) {
             } else {
                 s_carry = 1;
             }
-        } else {
+        } else if (s_carry > 0) {
             s_idx += s_carry;
             if (s_idx != 0 && s_carry == 1) { // no overflow
                 s_carry = 0;
             }
         }
+        
         s[idx] = s_idx;
     }
 
@@ -197,14 +152,6 @@ void saxpy(BigInt& s, const BigInt& a, const Int& x, const BigInt& y) {
         s.pop_back();
     }
 }
-
-// General Purpose functions:
-// X  = A * B + C
-// X += A * B   <=> X = A * B + X
-// X += A       <=> X = X * 1 + A       
-// X *= A       <=> X = A * X + 0
-// X -= A
-// X >= A
 
 int main(int argc, char* argv[]) {
     assert(argc == 2);
@@ -217,7 +164,8 @@ int main(int argc, char* argv[]) {
     BigInt n0 = {1};
     BigInt n1 = {0};
     BigInt n2 = {1};
-    BigInt n3 = {0};
+
+    const BigInt zero = {0};
 
     Int x0 = 5;
     Int x1 = 300;
@@ -231,8 +179,6 @@ int main(int argc, char* argv[]) {
         }
         
         // n1 = (n0 * x3) + n1
-        // mul(n0, x3, n3);
-        // sumeq(n1, n3);
         saxpy(n1, n0, x3, n1);
 
         char y = '0';
@@ -242,9 +188,9 @@ int main(int argc, char* argv[]) {
         assert(y <= '9');
         pi << y;
 
-        mul(n0, x0, n0);    // n0 *= x0
-        mul(n1, x1, n1);    // n1 *= x1
-        mul(n2, x2, n2);    // n2 *= x2
+        saxpy(n0, n0, x0, zero);    // n0 *= x0
+        saxpy(n1, n1, x1, zero);    // n1 *= x1
+        saxpy(n2, n2, x2, zero);    // n2 *= x2
 
         i  += 1;
         x0 += 20 * i;
