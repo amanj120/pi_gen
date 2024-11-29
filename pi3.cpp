@@ -73,6 +73,33 @@ IntPair mul(const Int x, const Int y) {
     return {pl, pr};
 }
 
+// Returns false if b > a, else does a -= b in place and returns true.
+bool diffeq(BigInt& a, const BigInt& b) {
+    if (b.size() > a.size()) {
+        return false;
+    }
+    for (auto i = a.size(); i > 0; --i) {
+        if (a[i - 1] > b[i - 1]) {
+            break;
+        } else if (b[i - 1] > a[i - 1]) {
+            return false;
+        }
+    }
+    Int carry = 0;
+    for (size_t i = 0; i < b.size(); i++) {
+        if (b[i] > a[i]) {
+            // TODO: deal with multiple 0's in a row
+            assert(a[i + 1] != 0);
+            a[i + 1] -= 1;
+        }
+        a[i] -= b[i];
+    }
+    while (a.back() == 0 && a.size() > 1) {
+        a.pop_back();
+    }
+    return true;
+}
+
 // c = a * b
 void mul(const BigInt& a, const Int b, BigInt& c) {
     Int carry = 0;
@@ -86,26 +113,10 @@ void mul(const BigInt& a, const Int b, BigInt& c) {
             carry = pr;
         }
     }
-    if (carry != 0) {
-        c.push_back(carry);
-    }
-}
+    c.push_back(carry);
 
-// a -= b
-void diffeq(BigInt& a, const BigInt& b) {
-    Int carry = 0;
-    for (size_t i = 0; i < b.size(); i++) {
-        if (a[i] >= b[i]) {
-            a[i] -= b[i];
-        } else {
-            // TODO: deal with multiple 0's in a row
-            assert(a[i + 1] != 0);
-            a[i+1]--;
-            a[i] -= b[i];
-        }
-    }
-    while (a.back() == 0 && a.size() > 1) {
-        a.pop_back();
+    while (c.back() == 0 && c.size() > 1) {
+        c.pop_back();
     }
 }
 
@@ -137,41 +148,68 @@ void sumeq(BigInt& a, const BigInt& b) {
     }
 }
 
-// a >= b
-bool ge(const BigInt& a, const BigInt& b) {
-    if (a.size() != b.size()) {
-        return a.size() > b.size();
+// s = a * x + y
+void saxpy(BigInt& s, const BigInt& a, const Int& x, const BigInt& y) {
+    // mul
+    Int p_carry = 0; // carry for product
+    Int s_carry = 0; // carry for sum
+    Int s_idx   = 0;
+    if (a.size() >= y.size()) {
+        s.resize(a.size() + 1, 0UL);
+    } else {
+        s.resize(y.size() + 1, 0UL);
     }
-    for (auto i = a.size(); i > 0; --i) {
-        if (a[i - 1] != b[i - 1]) {
-            return a[i - 1] > b[i - 1];
-        }
-    }
-    return true;
-}
 
-// Remove trailing 0
-bool prune(BigInt& a, BigInt& b, BigInt& c) {
-    if (a[0] == 0 && b[0] == 0 && c[0] == 0) {
-        a.erase(a.begin());
-        b.erase(b.begin());
-        c.erase(c.begin());
-        return true;
+    for (size_t idx = 0; idx < s.size(); idx++) {
+        if (idx < a.size()) {
+            auto const [pl, pr] = mul(a[idx], x);
+            s_idx = p_carry + pl;
+            if (s_idx < p_carry) {
+                p_carry = pr + 1;
+            } else {
+                p_carry = pr;
+            }
+        } else {
+            s_idx = p_carry;
+            p_carry = 0;
+        }
+
+        if (idx < y.size()) {
+            const Int old_si = s_idx;
+            s_idx += y[idx] + s_carry;
+            if (s_idx > old_si) { // no overflow
+                s_carry = 0; 
+            } else if (s_idx == old_si && s_carry == 0) { // also no overflow
+                s_carry = 0;
+            } else {
+                s_carry = 1;
+            }
+        } else {
+            s_idx += s_carry;
+            if (s_idx != 0 && s_carry == 1) { // no overflow
+                s_carry = 0;
+            }
+        }
+        s[idx] = s_idx;
     }
-    return false;
+
+    while (s.back() == 0 && s.size() > 1) {
+        s.pop_back();
+    }
 }
 
 // General Purpose functions:
-// X += A * B
-// X += A
-// X *= A
+// X  = A * B + C
+// X += A * B   <=> X = A * B + X
+// X += A       <=> X = X * 1 + A       
+// X *= A       <=> X = A * X + 0
 // X -= A
 // X >= A
 
 int main(int argc, char* argv[]) {
     assert(argc == 2);
     Int N = std::stoull(argv[1]);
-    // Any bigger and x4 gets close to overflowing.
+    // Any bigger and x3 gets close to overflowing.
     assert(N <= 369'000'000UL);
 
     stringstream pi;
@@ -181,27 +219,25 @@ int main(int argc, char* argv[]) {
     BigInt n2 = {1};
     BigInt n3 = {0};
 
-    Int x0 = 5UL;
-    Int x1 = 300UL;
-    Int x2 = 30UL;
-    Int x3 = 3UL;
-    Int i  = 1UL;
+    Int x0 = 5;
+    Int x1 = 300;
+    Int x2 = 30;
+    Int x3 = 3;
+    Int i  = 1;
 
     while (N >= i) {
         if (i % 1000 == 0) {
             std::cerr << i << std::endl;
         }
         
-        // n1 = (n0 * x0) + n1
-        // Y  = A * B + C
-        // n1 += (n0 * x3)
-        mul(n0, x3, n3);
-        sumeq(n1, n3);
+        // n1 = (n0 * x3) + n1
+        // mul(n0, x3, n3);
+        // sumeq(n1, n3);
+        saxpy(n1, n0, x3, n1);
 
         char y = '0';
-        while (ge(n1, n2)) {
+        while (diffeq(n1, n2)) {
             y += 1;
-            diffeq(n1, n2);
         }
         assert(y <= '9');
         pi << y;
@@ -210,20 +246,12 @@ int main(int argc, char* argv[]) {
         mul(n1, x1, n1);    // n1 *= x1
         mul(n2, x2, n2);    // n2 *= x2
 
-        x0 += 5;
-        x0 += (i * 20);
-
-        x1 += 135;
-        x1 += 135;
-        x1 += (i * 135);
-        x1 += (i * 135);
-
-        x2 += 27;
-        x2 += (i * 27);
-
-        x3 += 5;
-
         i  += 1;
+        x0 += 20 * i;
+        x0 -= 15;
+        x1 += 270 * i;
+        x2 += 27 * i;
+        x3 += 5;
     }
 
     std::cout << pi.str() << std::endl;
