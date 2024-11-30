@@ -5,7 +5,7 @@
 using Int    = uint64_t;
 using BigInt = std::vector<Int>;
 
-// Returns false if b > a, else does a -= b in place and returns true.
+// Returns false if b > a, else does a -= b in place and returns true
 bool diffeq(BigInt& a, const BigInt& b) {
     // checking to make sure a >= b;
     if (b.size() > a.size()) {
@@ -82,7 +82,7 @@ void saxpy(BigInt& s, const BigInt& a, const Int x, const BigInt& y) {
 int main(int argc, char* argv[]) {
     assert(argc == 2);
     const Int N = std::stoull(argv[1]);
-    // Any bigger and x1 gets close to overflowing.
+    // Any bigger and x1 gets close to overflowing
     assert(N <= 369'000'000UL);
 
     BigInt n0 = {1};
