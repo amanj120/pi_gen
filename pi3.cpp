@@ -35,7 +35,8 @@ bool diffeq(BigInt& a, const BigInt& b) {
 
 // s = a * x + y
 void saxpy(BigInt& s, const BigInt& a, const Int x, const BigInt& y) {
-    constexpr Int half_64 = 0xffffffff;
+    constexpr size_t shift = (sizeof(Int) * 4UL);
+    constexpr Int    half  = static_cast<Int>(0xffffffffffffffffUL >> shift);
 
     Int p_carry = 0; // carry for product
     Int s_carry = 0; // carry for sum
@@ -52,17 +53,17 @@ void saxpy(BigInt& s, const BigInt& a, const Int x, const BigInt& y) {
         const Int ai = i < as ? a[i] : 0UL;
         const Int yi = i < ys ? y[i] : 0UL;
 
-        const Int xm = x >> 32;         // most significant half of x
-        const Int xl = x & half_64;     // least significant half of x
-        const Int am = ai >> 32;        // most significant half of a[i]
-        const Int al = ai & half_64;    // least significant half of a[i]
+        const Int xm = x >> shift;   // most significant half of x
+        const Int xl = x & half;     // least significant half of x
+        const Int am = ai >> shift;  // most significant half of a[i]
+        const Int al = ai & half;    // least significant half of a[i]
         const Int mm = xm * am;
         const Int ml = xm * al;
         const Int lm = xl * am;
         const Int ll = xl * al;
-        const Int o1 = (ml & half_64) + (lm & half_64) + (ll >> 32);
-        const Int pm = mm + (ml >> 32) + (lm >> 32) + (o1 >> 32); // most significant half of product
-        const Int pl = (o1 << 32) + (ll & half_64); // least significant half of product
+        const Int o1 = (ml & half) + (lm & half) + (ll >> shift);
+        const Int pm = mm + (ml >> shift) + (lm >> shift) + (o1 >> shift); // most significant half of product
+        const Int pl = (o1 << shift) + (ll & half); // least significant half of product
 
         const Int sip = p_carry + pl;       // s[i] after product (to calculate p_carry)
         const Int sis = sip + yi + s_carry; // s[i] after sum (to calculate s_carry)
@@ -80,7 +81,7 @@ void saxpy(BigInt& s, const BigInt& a, const Int x, const BigInt& y) {
 
 int main(int argc, char* argv[]) {
     assert(argc == 2);
-    Int N = std::stoull(argv[1]);
+    const Int N = std::stoull(argv[1]);
     // Any bigger and x1 gets close to overflowing.
     assert(N <= 369'000'000UL);
 
@@ -96,11 +97,6 @@ int main(int argc, char* argv[]) {
     Int x3 = 3;
 
     for (Int i = 1; i <= N; ++i) {
-        if (i % 128 == 0) {
-            std::cout << std::endl << std::flush;
-        }
-        
-        
         saxpy(n1, n0, x3, n1);      // n1 = (n0 * x3) + n1 
 
         char y = '0';
@@ -119,6 +115,11 @@ int main(int argc, char* argv[]) {
         x1 += 270 * (i + 1);
         x2 += 27 * (i + 1);
         x3 += 5;
+
+        if (i % 128 == 0) {
+            std::cout << std::endl << std::flush;
+            std::cerr << i << std::endl << std::flush;
+        }
     }
     std::cout << std::endl << std::flush;
 }
