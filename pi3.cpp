@@ -1,8 +1,5 @@
 #include <iostream>
-// #include <vector>
 #include <assert.h>
-// #include <stdio.h>
-// #include <cassert>
 
 using Int    = uint64_t;
 
@@ -41,17 +38,15 @@ void saxpy(Int* s, Int& ssize, Int* a, Int& asize, const Int x, Int* y, Int& ysi
 
     Int p_carry = 0; // carry for product
     Int s_carry = 0; // carry for sum
-    Int ssize_new = 0;
     if (asize >= ysize) {
-        ssize_new = asize + 1;
+        ssize = asize + 1;
     } else {
-        ssize_new = ysize + 1;
+        ssize = ysize + 1;
     }
 
-    for (size_t i = 0; i < ssize_new; i++) {
-        const Int ai = i < asize ? a[i] : 0UL;
-        const Int yi = i < ysize ? y[i] : 0UL;
-
+    for (size_t i = 0; i < ssize; i++) {
+        const Int ai = a[i];
+        const Int yi = y[i];
         const Int xm = x >> shift;   // most significant half of x
         const Int xl = x & half;     // least significant half of x
         const Int am = ai >> shift;  // most significant half of a[i]
@@ -73,11 +68,9 @@ void saxpy(Int* s, Int& ssize, Int* a, Int& asize, const Int x, Int* y, Int& ysi
         s[i] = sis;
     }
 
-    while (s[ssize_new - 1] == 0 && ssize_new > 0) {
-        ssize_new--;
+    while (s[ssize - 1] == 0 && ssize > 0) {
+        ssize--;
     }
-
-    ssize = ssize_new;
 }
 
 // a *= x
