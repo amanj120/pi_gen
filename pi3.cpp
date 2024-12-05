@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
-#include <cassert>
+#include <assert.h>
+// #include <stdio.h>
+// #include <cassert>
 
 using Int    = uint64_t;
 using BigInt = std::vector<Int>;
@@ -22,7 +24,7 @@ bool diffeq(BigInt& a, const BigInt& b) {
     for (size_t i = 0; i < b.size(); i++) {
         if (b[i] > a[i]) {
             // TODO: deal with multiple 0's in a row
-            assert(a[i + 1] != 0);
+            // assert(a[i + 1] != 0);
             a[i + 1] -= 1;
         }
         a[i] -= b[i];
@@ -79,6 +81,39 @@ void saxpy(BigInt& s, const BigInt& a, const Int x, const BigInt& y) {
     }
 }
 
+// a *= x
+void muleq(BigInt& a, const Int x) {
+    constexpr size_t shift = (sizeof(Int) * 4UL);
+    constexpr Int    half  = static_cast<Int>(0xffffffffffffffffUL >> shift);
+
+    Int p_carry = 0; // carry for product
+
+    const Int as = a.size();
+
+    for (size_t i = 0; i < as; i++) {
+        const Int ai = a[i];
+        const Int xm = x >> shift;   // most significant half of x
+        const Int xl = x & half;     // least significant half of x
+        const Int am = ai >> shift;  // most significant half of a[i]
+        const Int al = ai & half;    // least significant half of a[i]
+        const Int mm = xm * am;
+        const Int ml = xm * al;
+        const Int lm = xl * am;
+        const Int ll = xl * al;
+        const Int o1 = (ml & half) + (lm & half) + (ll >> shift);
+        const Int pm = mm + (ml >> shift) + (lm >> shift) + (o1 >> shift); // most significant half of product
+        const Int pl = (o1 << shift) + (ll & half); // least significant half of product
+        
+        const Int ai_new = p_carry + pl;       // a[i] after product (to calculate p_carry)
+        p_carry = pm + ((ai_new < pl) * 1);
+        a[i] = ai_new;
+    }
+
+    if (p_carry != 0) {
+        a.push_back(p_carry);
+    } 
+}
+
 int main(int argc, char* argv[]) {
     assert(argc == 2);
     const Int N = std::stoull(argv[1]);
@@ -88,8 +123,6 @@ int main(int argc, char* argv[]) {
     BigInt n0 = {1};
     BigInt n1 = {0};
     BigInt n2 = {1};
-
-    const BigInt zero = {};
 
     Int x0 = 5;
     Int x1 = 300;
@@ -106,11 +139,10 @@ int main(int argc, char* argv[]) {
         assert(y <= '9');
         std::cout << y;
 
-        saxpy(n0, n0, x0, zero);    // n0 *= x0
-        saxpy(n1, n1, x1, zero);    // n1 *= x1
-        saxpy(n2, n2, x2, zero);    // n2 *= x2
+        muleq(n0, x0);  // n0 *= x0
+        muleq(n1, x1);  // n1 *= x1
+        muleq(n2, x2);  // n2 *= x2
 
-        // i  += 1;
         x0 += (20 * i) + 5;
         x1 += 270 * (i + 1);
         x2 += 27 * (i + 1);
@@ -124,3 +156,16 @@ int main(int argc, char* argv[]) {
     std::cout << std::endl << std::flush;
 }
 
+/*
+only saxpy:
+50k
+20.598
+20.410
+20.532
+
+saxpy and muleq
+19.366
+19.521
+19.515
+
+*/
