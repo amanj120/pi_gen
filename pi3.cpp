@@ -1,19 +1,18 @@
 #include <iostream>
-#include <vector>
+// #include <vector>
 #include <assert.h>
 // #include <stdio.h>
 // #include <cassert>
 
 using Int    = uint64_t;
-using BigInt = std::vector<Int>;
 
 // Returns false if b > a, else does a -= b in place and returns true
-bool diffeq(BigInt& a, const BigInt& b) {
+bool diffeq(Int* a, Int& asize, Int* b, Int& bsize) {
     // checking to make sure a >= b;
-    if (b.size() > a.size()) {
+    if (bsize > asize) {
         return false;
     }
-    for (auto i = a.size(); i > 0; --i) {
+    for (auto i = asize; i > 0; --i) {
         if (a[i - 1] > b[i - 1]) {
             break;
         } else if (b[i - 1] > a[i - 1]) {
@@ -21,7 +20,7 @@ bool diffeq(BigInt& a, const BigInt& b) {
         }
     }
 
-    for (size_t i = 0; i < b.size(); i++) {
+    for (size_t i = 0; i < bsize; i++) {
         if (b[i] > a[i]) {
             // TODO: deal with multiple 0's in a row
             // assert(a[i + 1] != 0);
@@ -29,31 +28,29 @@ bool diffeq(BigInt& a, const BigInt& b) {
         }
         a[i] -= b[i];
     }
-    while (a.back() == 0 && a.size() > 1) {
-        a.pop_back();
+    while (a[asize - 1] == 0 && asize > 0) {
+        asize--;
     }
     return true;
 }
 
 // s = a * x + y
-void saxpy(BigInt& s, const BigInt& a, const Int x, const BigInt& y) {
+void saxpy(Int* s, Int& ssize, Int* a, Int& asize, const Int x, Int* y, Int& ysize) {
     constexpr size_t shift = (sizeof(Int) * 4UL);
     constexpr Int    half  = static_cast<Int>(0xffffffffffffffffUL >> shift);
 
     Int p_carry = 0; // carry for product
     Int s_carry = 0; // carry for sum
-
-    const Int ys = y.size();
-    const Int as = a.size();
-    if (as >= ys) {
-        s.resize(as + 1, 0UL);
+    Int ssize_new = 0;
+    if (asize >= ysize) {
+        ssize_new = asize + 1;
     } else {
-        s.resize(ys + 1, 0UL);
+        ssize_new = ysize + 1;
     }
 
-    for (size_t i = 0; i < s.size(); i++) {
-        const Int ai = i < as ? a[i] : 0UL;
-        const Int yi = i < ys ? y[i] : 0UL;
+    for (size_t i = 0; i < ssize_new; i++) {
+        const Int ai = i < asize ? a[i] : 0UL;
+        const Int yi = i < ysize ? y[i] : 0UL;
 
         const Int xm = x >> shift;   // most significant half of x
         const Int xl = x & half;     // least significant half of x
@@ -76,21 +73,21 @@ void saxpy(BigInt& s, const BigInt& a, const Int x, const BigInt& y) {
         s[i] = sis;
     }
 
-    while (s.back() == 0 && s.size() > 1) {
-        s.pop_back();
+    while (s[ssize_new - 1] == 0 && ssize_new > 0) {
+        ssize_new--;
     }
+
+    ssize = ssize_new;
 }
 
 // a *= x
-void muleq(BigInt& a, const Int x) {
+void muleq(Int* a, Int& asize, const Int x) {
     constexpr size_t shift = (sizeof(Int) * 4UL);
     constexpr Int    half  = static_cast<Int>(0xffffffffffffffffUL >> shift);
 
     Int p_carry = 0; // carry for product
 
-    const Int as = a.size();
-
-    for (size_t i = 0; i < as; i++) {
+    for (size_t i = 0; i < asize; i++) {
         const Int ai = a[i];
         const Int xm = x >> shift;   // most significant half of x
         const Int xl = x & half;     // least significant half of x
@@ -110,7 +107,8 @@ void muleq(BigInt& a, const Int x) {
     }
 
     if (p_carry != 0) {
-        a.push_back(p_carry);
+        a[asize] = p_carry;
+        asize++;
     } 
 }
 
@@ -120,9 +118,22 @@ int main(int argc, char* argv[]) {
     // Any bigger and x1 gets close to overflowing
     assert(N <= 369'000'000UL);
 
-    BigInt n0 = {1};
-    BigInt n1 = {0};
-    BigInt n2 = {1};
+    Int n0[N];
+    Int n1[N];
+    Int n2[N];
+
+    for (auto i = 0; i < N; i++) {
+        n0[i] = 0;
+        n1[i] = 0;
+        n2[i] = 0;
+    }
+
+    n0[0] = 1;
+    n2[0] = 1;
+
+    Int n0size = 1;
+    Int n1size = 1;
+    Int n2size = 1;
 
     Int x0 = 5;
     Int x1 = 300;
@@ -130,18 +141,18 @@ int main(int argc, char* argv[]) {
     Int x3 = 3;
 
     for (Int i = 1; i <= N; ++i) {
-        saxpy(n1, n0, x3, n1);      // n1 = (n0 * x3) + n1 
+        saxpy(n1, n1size, n0, n0size, x3, n1, n1size);      // n1 = (n0 * x3) + n1 
 
         char y = '0';
-        while (diffeq(n1, n2)) {
+        while (diffeq(n1, n1size, n2, n2size)) {
             y += 1;
         }
         assert(y <= '9');
         std::cout << y;
 
-        muleq(n0, x0);  // n0 *= x0
-        muleq(n1, x1);  // n1 *= x1
-        muleq(n2, x2);  // n2 *= x2
+        muleq(n0, n0size, x0);  // n0 *= x0
+        muleq(n1, n1size, x1);  // n1 *= x1
+        muleq(n2, n2size, x2);  // n2 *= x2
 
         x0 += (20 * i) + 5;
         x1 += 270 * (i + 1);
@@ -167,5 +178,10 @@ saxpy and muleq
 19.366
 19.521
 19.515
+
+no vector saxpy and muleq
+18.965
+18.910
+18.806
 
 */
