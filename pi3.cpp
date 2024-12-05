@@ -1,6 +1,6 @@
 #include <iostream>
 
-void mul(const uint64_t x, const uint64_t y, uint64_t& pm, uint64_t& pl) {
+void mul(const uint64_t x, const uint64_t y, uint64_t& cur, uint64_t& carry) {
     constexpr uint64_t shift = (sizeof(uint64_t) * 4UL);
     constexpr uint64_t half  = static_cast<uint64_t>(0xffffffffffffffffUL >> shift);
 
@@ -13,70 +13,40 @@ void mul(const uint64_t x, const uint64_t y, uint64_t& pm, uint64_t& pl) {
     const uint64_t lm = xl * ym;
     const uint64_t ll = xl * yl;
     const uint64_t o1 = (ml & half) + (lm & half) + (ll >> shift);
-    pm = mm + (ml >> shift) + (lm >> shift) + (o1 >> shift); // most significant half of product
-    pl = (o1 << shift) + (ll & half); // least significant half of product
+    const uint64_t pl = (o1 << shift) + (ll & half); // least significant half of product
+    const uint64_t pm = mm + (ml >> shift) + (lm >> shift) + (o1 >> shift); // most significant half of product
+    
+    cur   = pl + carry;
+    carry = pm + ((cur < pl) * 1);
 }
 
 // s = a * x + y
-void saxpy(uint64_t* s, uint64_t& ssize, uint64_t* a, uint64_t& asize, const uint64_t x, uint64_t* y, uint64_t& ysize) {
-    if (y != nullptr) {
-        uint64_t p_carry = 0; // carry for product
-        uint64_t s_carry = 0; // carry for sum
-        uint64_t pm; // most significant half of 64 bit multiply.
-        uint64_t pl; // least significant half of 64 bit multiply.
-
-        if (asize >= ysize) {
-            ssize = asize + 1;
-        } else {
-            ssize = ysize + 1;
-        }
-
-        for (size_t i = 0; i < ssize; i++) {
-            mul(a[i], x, pm, pl);
-            const uint64_t sip = p_carry + pl;  // s[i] after product (to calculate p_carry)
-            s[i] = sip + y[i] + s_carry;        // s[i] after sum (to calculate s_carry)
-            p_carry = pm + ((sip < pl) * 1);
-            s_carry = ((s[i] < sip) * 1) + ((s[i] == sip) * s_carry);
-        }
-
-        while (s[ssize - 1] == 0 && ssize > 0) {
-            ssize--;
+void saxpy(uint64_t* s, uint64_t& ssize, const uint64_t* a, uint64_t& asize, const uint64_t x, const uint64_t* y, const uint64_t& ysize) {
+    uint64_t p_carry = 0; // carry for product
+    uint64_t new_ssize = asize + 1;
+    
+    if (y == 0 && ysize == 0) {
+        for (size_t i = 0; i < new_ssize; i++) {
+            mul(a[i], x, s[i], p_carry);
         }
     } else {
-        uint64_t p_carry = 0; // carry for product
-        uint64_t pm; // most significant half of 64 bit multiply.
-        uint64_t pl; // least significant half of 64 bit multiply.
-
-        ssize = asize + 1;
-        for (size_t i = 0; i < ssize; i++) {
-            mul(a[i], x, pm, pl);
-            s[i] = p_carry + pl;
-            p_carry = pm + ((s[i] < pl) * 1);
+        uint64_t s_carry = 0; // carry for sum
+        uint64_t cur;         // tmp used for calculating s_carry
+        if (ysize > asize) {
+            new_ssize = ysize + 1;
         }
-
-        while (s[ssize - 1] == 0 && ssize > 0) {
-            ssize--;
+        for (size_t i = 0; i < new_ssize; i++) {
+            mul(a[i], x, cur, p_carry);
+            s[i] = cur + y[i] + s_carry;        // s[i] after sum (to calculate s_carry)
+            s_carry = ((s[i] < cur) * 1) + ((s[i] == cur) * s_carry);
         }
     }
-    
-}
 
-// s = a * x
-void sax(uint64_t*s, uint64_t& ssize, uint64_t* a, uint64_t& asize, const uint64_t x) {
-    uint64_t p_carry = 0; // carry for product
-    uint64_t pm; // most significant half of 64 bit multiply.
-    uint64_t pl; // least significant half of 64 bit multiply.
-
-    ssize = asize + 1;
-    for (size_t i = 0; i < ssize; i++) {
-        mul(a[i], x, pm, pl);
-        s[i] = p_carry + pl;
-        p_carry = pm + ((s[i] < pl) * 1);
+    while (s[new_ssize - 1] == 0 && new_ssize > 0) {
+        new_ssize--;
     }
 
-    while (s[ssize - 1] == 0 && ssize > 0) {
-        ssize--;
-    }
+    ssize = new_ssize;
 }
 
 int main(int argc, char* argv[]) {
@@ -87,7 +57,7 @@ int main(int argc, char* argv[]) {
 
     const uint64_t N = std::stoull(argv[1]);
    
-    // Any bigger and x1 gets close to overflowing
+    // Any bigger and (x2 * 10) gets close to overflowing
     if (N > 369'000'000UL) { 
         std::cerr << "N > 369,000,000" << std::endl;
         return -1;
@@ -107,38 +77,27 @@ int main(int argc, char* argv[]) {
     n2[0] = 1;
 
     uint64_t n0size = 1;
-    uint64_t n1size = 1;
+    uint64_t n1size = 0;
     uint64_t n2size = 1;
 
     uint64_t x0 = 5;
-    uint64_t x1 = 300;
     uint64_t x2 = 30;
     uint64_t x3 = 3;
 
-    uint64_t z = 0;
-
+    char y;
     for (uint64_t i = 1; i <= N; ++i) {
-        saxpy(n1, n1size, n0, n0size, x3, n1, n1size);      // n1 = (n0 * x3) + n1 
-
-        char y = '0';
-        while (y <= '9') { // y = n1//n2; n1 %= n2; 
-            // checking to make sure a >= b;
-            if (n2size > n1size) {
-                break;
-            }
-            bool n1larger = true;
-            for (auto i = n1size; i > 0; --i) {
-                if (n1[i - 1] > n2[i - 1]) {
+        saxpy(n1, n1size, n0, n0size, x3, n1, n1size); // n1 = (n0 * x3) + n1 
+           
+        for (y = '0'; y <= '9'; ++y) { // y = n1 // n2; n1 %= n2
+            if (n1size < n2size) { // break once n1 < n2
+                break; 
+            } else if (n1size == n2size) {
+                if (n1[n1size - 1] < n2[n1size - 1]) {
                     break;
-                } else if (n2[i - 1] > n1[i - 1]) {
-                    n1larger = false;
+                } else if (n1[n1size - 1] == n2[n1size - 1] && n1size > 1 && n1[n1size - 2] < n2[n1size - 2]) {
                     break;
                 }
             }
-            if (!n1larger) {
-                break;
-            }
-
             for (size_t i = 0; i < n2size; i++) {
                 if (n2[i] > n1[i]) {
                     // TODO: deal with multiple 0's in a row
@@ -147,22 +106,18 @@ int main(int argc, char* argv[]) {
                 }
                 n1[i] -= n2[i];
             }
-
             while (n1[n1size - 1] == 0 && n1size > 0) {
                 n1size--;
             }
-
-            y += 1;
         }
 
         std::cout << y;
 
-        saxpy(n0, n0size, n0, n0size, x0, nullptr, z);  // n0 *= x0
-        saxpy(n1, n1size, n1, n1size, x1, nullptr, z);  // n1 *= x1
-        saxpy(n2, n2size, n2, n2size, x2, nullptr, z);  // n2 *= x2
-
+        saxpy(n0, n0size, n0, n0size, x0, 0, 0);        // n0 *= x0
+        saxpy(n1, n1size, n1, n1size, (x2 * 10), 0, 0); // n1 *= x2 * 10
+        saxpy(n2, n2size, n2, n2size, x2, 0, 0);        // n2 *= x2 + 0
+        
         x0 += (20 * i) + 5;
-        x1 += 270 * (i + 1);
         x2 += 27 * (i + 1);
         x3 += 5;
 
