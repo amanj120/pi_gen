@@ -1,10 +1,7 @@
 #include <iostream>
-#include <assert.h>
-
-using Int    = uint64_t;
 
 // Returns false if b > a, else does a -= b in place and returns true
-bool diffeq(Int* a, Int& asize, Int* b, Int& bsize) {
+bool diffeq(uint64_t* a, uint64_t& asize, uint64_t* b, uint64_t& bsize) {
     // checking to make sure a >= b;
     if (bsize > asize) {
         return false;
@@ -32,12 +29,12 @@ bool diffeq(Int* a, Int& asize, Int* b, Int& bsize) {
 }
 
 // s = a * x + y
-void saxpy(Int* s, Int& ssize, Int* a, Int& asize, const Int x, Int* y, Int& ysize) {
-    constexpr size_t shift = (sizeof(Int) * 4UL);
-    constexpr Int    half  = static_cast<Int>(0xffffffffffffffffUL >> shift);
+void saxpy(uint64_t* s, uint64_t& ssize, uint64_t* a, uint64_t& asize, const uint64_t x, uint64_t* y, uint64_t& ysize) {
+    constexpr size_t shift = (sizeof(uint64_t) * 4UL);
+    constexpr uint64_t    half  = static_cast<uint64_t>(0xffffffffffffffffUL >> shift);
 
-    Int p_carry = 0; // carry for product
-    Int s_carry = 0; // carry for sum
+    uint64_t p_carry = 0; // carry for product
+    uint64_t s_carry = 0; // carry for sum
     if (asize >= ysize) {
         ssize = asize + 1;
     } else {
@@ -45,22 +42,22 @@ void saxpy(Int* s, Int& ssize, Int* a, Int& asize, const Int x, Int* y, Int& ysi
     }
 
     for (size_t i = 0; i < ssize; i++) {
-        const Int ai = a[i];
-        const Int yi = y[i];
-        const Int xm = x >> shift;   // most significant half of x
-        const Int xl = x & half;     // least significant half of x
-        const Int am = ai >> shift;  // most significant half of a[i]
-        const Int al = ai & half;    // least significant half of a[i]
-        const Int mm = xm * am;
-        const Int ml = xm * al;
-        const Int lm = xl * am;
-        const Int ll = xl * al;
-        const Int o1 = (ml & half) + (lm & half) + (ll >> shift);
-        const Int pm = mm + (ml >> shift) + (lm >> shift) + (o1 >> shift); // most significant half of product
-        const Int pl = (o1 << shift) + (ll & half); // least significant half of product
+        const uint64_t ai = a[i];
+        const uint64_t yi = y[i];
+        const uint64_t xm = x >> shift;   // most significant half of x
+        const uint64_t xl = x & half;     // least significant half of x
+        const uint64_t am = ai >> shift;  // most significant half of a[i]
+        const uint64_t al = ai & half;    // least significant half of a[i]
+        const uint64_t mm = xm * am;
+        const uint64_t ml = xm * al;
+        const uint64_t lm = xl * am;
+        const uint64_t ll = xl * al;
+        const uint64_t o1 = (ml & half) + (lm & half) + (ll >> shift);
+        const uint64_t pm = mm + (ml >> shift) + (lm >> shift) + (o1 >> shift); // most significant half of product
+        const uint64_t pl = (o1 << shift) + (ll & half); // least significant half of product
 
-        const Int sip = p_carry + pl;       // s[i] after product (to calculate p_carry)
-        const Int sis = sip + yi + s_carry; // s[i] after sum (to calculate s_carry)
+        const uint64_t sip = p_carry + pl;       // s[i] after product (to calculate p_carry)
+        const uint64_t sis = sip + yi + s_carry; // s[i] after sum (to calculate s_carry)
 
         p_carry = pm + ((sip < pl) * 1);
         s_carry = ((sis < sip) * 1) + ((sis == sip) * s_carry);
@@ -74,27 +71,27 @@ void saxpy(Int* s, Int& ssize, Int* a, Int& asize, const Int x, Int* y, Int& ysi
 }
 
 // a *= x
-void muleq(Int* a, Int& asize, const Int x) {
-    constexpr size_t shift = (sizeof(Int) * 4UL);
-    constexpr Int    half  = static_cast<Int>(0xffffffffffffffffUL >> shift);
+void muleq(uint64_t* a, uint64_t& asize, const uint64_t x) {
+    constexpr size_t shift = (sizeof(uint64_t) * 4UL);
+    constexpr uint64_t    half  = static_cast<uint64_t>(0xffffffffffffffffUL >> shift);
 
-    Int p_carry = 0; // carry for product
+    uint64_t p_carry = 0; // carry for product
 
     for (size_t i = 0; i < asize; i++) {
-        const Int ai = a[i];
-        const Int xm = x >> shift;   // most significant half of x
-        const Int xl = x & half;     // least significant half of x
-        const Int am = ai >> shift;  // most significant half of a[i]
-        const Int al = ai & half;    // least significant half of a[i]
-        const Int mm = xm * am;
-        const Int ml = xm * al;
-        const Int lm = xl * am;
-        const Int ll = xl * al;
-        const Int o1 = (ml & half) + (lm & half) + (ll >> shift);
-        const Int pm = mm + (ml >> shift) + (lm >> shift) + (o1 >> shift); // most significant half of product
-        const Int pl = (o1 << shift) + (ll & half); // least significant half of product
+        const uint64_t ai = a[i];
+        const uint64_t xm = x >> shift;   // most significant half of x
+        const uint64_t xl = x & half;     // least significant half of x
+        const uint64_t am = ai >> shift;  // most significant half of a[i]
+        const uint64_t al = ai & half;    // least significant half of a[i]
+        const uint64_t mm = xm * am;
+        const uint64_t ml = xm * al;
+        const uint64_t lm = xl * am;
+        const uint64_t ll = xl * al;
+        const uint64_t o1 = (ml & half) + (lm & half) + (ll >> shift);
+        const uint64_t pm = mm + (ml >> shift) + (lm >> shift) + (o1 >> shift); // most significant half of product
+        const uint64_t pl = (o1 << shift) + (ll & half); // least significant half of product
         
-        const Int ai_new = p_carry + pl;       // a[i] after product (to calculate p_carry)
+        const uint64_t ai_new = p_carry + pl;       // a[i] after product (to calculate p_carry)
         p_carry = pm + ((ai_new < pl) * 1);
         a[i] = ai_new;
     }
@@ -106,14 +103,22 @@ void muleq(Int* a, Int& asize, const Int x) {
 }
 
 int main(int argc, char* argv[]) {
-    assert(argc == 2);
-    const Int N = std::stoull(argv[1]);
-    // Any bigger and x1 gets close to overflowing
-    assert(N <= 369'000'000UL);
+    if (argc != 2) {
+        std::cerr << "argc != 2" << std::endl;
+        return -1;
+    }
 
-    Int n0[N];
-    Int n1[N];
-    Int n2[N];
+    const uint64_t N = std::stoull(argv[1]);
+   
+    // Any bigger and x1 gets close to overflowing
+    if (N > 369'000'000UL) { 
+        std::cerr << "N > 369,000,000" << std::endl;
+        return -1;
+    }
+
+    uint64_t n0[N];
+    uint64_t n1[N];
+    uint64_t n2[N];
 
     for (auto i = 0; i < N; i++) {
         n0[i] = 0;
@@ -124,23 +129,58 @@ int main(int argc, char* argv[]) {
     n0[0] = 1;
     n2[0] = 1;
 
-    Int n0size = 1;
-    Int n1size = 1;
-    Int n2size = 1;
+    uint64_t n0size = 1;
+    uint64_t n1size = 1;
+    uint64_t n2size = 1;
 
-    Int x0 = 5;
-    Int x1 = 300;
-    Int x2 = 30;
-    Int x3 = 3;
+    uint64_t x0 = 5;
+    uint64_t x1 = 300;
+    uint64_t x2 = 30;
+    uint64_t x3 = 3;
 
-    for (Int i = 1; i <= N; ++i) {
+    for (uint64_t i = 1; i <= N; ++i) {
         saxpy(n1, n1size, n0, n0size, x3, n1, n1size);      // n1 = (n0 * x3) + n1 
 
         char y = '0';
-        while (diffeq(n1, n1size, n2, n2size)) {
+        while (true) {
+            // while (diffeq(n1, n1size, n2, n2size)) {
+            // checking to make sure a >= b;
+            if (n2size > n1size) {
+                break;
+            }
+            bool n1larger = true;
+            for (auto i = n1size; i > 0; --i) {
+                if (n1[i - 1] > n2[i - 1]) {
+                    break;
+                } else if (n2[i - 1] > n1[i - 1]) {
+                    n1larger = false;
+                    break;
+                }
+            }
+            if (!n1larger) {
+                break;
+            }
+
+            for (size_t i = 0; i < n2size; i++) {
+                if (n2[i] > n1[i]) {
+                    // TODO: deal with multiple 0's in a row
+                    // assert(a[i + 1] != 0);
+                    n1[i + 1] -= 1;
+                }
+                n1[i] -= n2[i];
+            }
+
+            while (n1[n1size - 1] == 0 && n1size > 0) {
+                n1size--;
+            }
+
             y += 1;
         }
-        assert(y <= '9');
+
+        if (y > '9') {
+            std::cerr << "y > '9'" << std::endl;
+            return -1;
+        }
         std::cout << y;
 
         muleq(n0, n0size, x0);  // n0 *= x0
