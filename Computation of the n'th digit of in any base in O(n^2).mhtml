@@ -1,0 +1,1118 @@
+From: <Saved by Blink>
+Snapshot-Content-Location: https://bellard.org/pi/pi_n2/pi_n2.html#res2
+Subject: Computation of the n'th digit of in any base in O(n^2)
+Date: Wed, 11 Dec 2024 22:57:21 -0500
+MIME-Version: 1.0
+Content-Type: multipart/related;
+	type="text/html";
+	boundary="----MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----"
+
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: text/html
+Content-ID: <frame-BACBBA324E57FA880A346BA586C54F78@mhtml.blink>
+Content-Transfer-Encoding: quoted-printable
+Content-Location: https://bellard.org/pi/pi_n2/pi_n2.html#res2
+
+<!DOCTYPE html PUBLIC "-//W3O//DTD W3 HTML 2.0//EN"><!--Converted with LaTe=
+X2HTML 95.1 (Fri Jan 20 1995) by Nikos Drakos (nikos@cbl.leeds.ac.uk), CBLU=
+, University of Leeds --><html><head><meta http-equiv=3D"Content-Type" cont=
+ent=3D"text/html; charset=3DUTF-8">
+<title>Computation of the n'th digit of  in any base in O(n^2) </title>
+</head>
+<body>
+<meta name=3D"description" value=3D"Computation of the n'th digit of  in an=
+y base in  ">
+<meta name=3D"keywords" value=3D"pi_n2">
+<meta name=3D"resource-type" value=3D"document">
+<meta name=3D"distribution" value=3D"global">
+<p>
+  </p><h1>Computation of the n'th digit of pi in any base in O(n^2) </h1>
+<p><strong>Fabrice Bellard</strong></p><p>
+</p><p>
+<b> This article is an <em> alpha</em> version. Please send any comments to=
+ <tt> Fabrice.Bellard@enst.fr</tt> </b>
+</p><p>
+Simon Plouffe explained in [<a href=3D"https://bellard.org/pi/pi_n2/pi_n2.h=
+tml#plo96">1</a>] a new algorithm to compute the
+n'th digit of <img align=3D"BOTTOM" alt=3D"" src=3D"https://bellard.org/pi/=
+pi_n2/img3.gif"> and some other mathematical constants in any base with
+very little memory. Its running time is <img align=3D"MIDDLE" alt=3D"" src=
+=3D"https://bellard.org/pi/pi_n2/img4.gif">. We
+present here an improvement of this algorithm whose running time is
+<img align=3D"MIDDLE" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/img5.gif=
+"> while its memory requirements stay <img align=3D"MIDDLE" alt=3D"" src=3D=
+"https://bellard.org/pi/pi_n2/img6.gif">, which makes it
+practical to compute the millionth digit of <img align=3D"BOTTOM" alt=3D"" =
+src=3D"https://bellard.org/pi/pi_n2/img7.gif"> for example.
+</p><p>
+</p><h1><a name=3D"SECTION00010000000000000000">1 First result</a></h1>
+<p>
+We want to compute the <b>n</b>'th digit in base <b>B</b> of <b>s</b>, wher=
+e
+</p><p>
+</p><p><img align=3D"BOTTOM" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/i=
+mg8.gif"></p><p>
+</p><p>
+Let <img align=3D"MIDDLE" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/img9=
+.gif"> , <img align=3D"MIDDLE" alt=3D"" src=3D"https://bellard.org/pi/pi_n2=
+/img10.gif"> and
+<img align=3D"MIDDLE" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/img11.gi=
+f">. We have
+</p><p>
+</p><p><img align=3D"BOTTOM" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/i=
+mg12.gif"></p><p>
+</p><p>
+with the Chinese remainder theorem. Hence
+</p><p><img align=3D"BOTTOM" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/i=
+mg13.gif"></p><p>
+</p><p>
+The <img align=3D"MIDDLE" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/img1=
+4.gif">'th digits of <b>s</b>, where <img align=3D"MIDDLE" alt=3D"" src=3D"=
+https://bellard.org/pi/pi_n2/img15.gif">, are the digits in base <b>B</b> o=
+f
+</p><p>
+</p><p><img align=3D"BOTTOM" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/i=
+mg16.gif"></p><p>
+</p><p>
+With the last formula we have
+</p><p>
+</p><p><img align=3D"BOTTOM" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/i=
+mg17.gif"></p><p>
+</p><p>
+As shown in [<a href=3D"https://bellard.org/pi/pi_n2/pi_n2.html#plo96">1</a=
+>], this equality is interesting because each term
+can be computed separatly, with a total memory of <img align=3D"MIDDLE" alt=
+=3D"" src=3D"https://bellard.org/pi/pi_n2/img18.gif"> if we already
+know <b>b</b> and <img align=3D"MIDDLE" alt=3D"" src=3D"https://bellard.org=
+/pi/pi_n2/img19.gif">.
+</p><p>
+</p><h1><a name=3D"SECTION00020000000000000000">2 Second result</a></h1>
+<p>
+<a name=3D"res2">&nbsp;</a>
+</p><p>
+We want now to compute the <b>n</b>'th digit in base <b>B</b> of <img align=
+=3D"MIDDLE" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/img20.gif">, where
+</p><p>
+</p><p><img align=3D"BOTTOM" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/i=
+mg21.gif"></p><p>
+</p><p>
+with
+</p><p>
+</p><p><img align=3D"BOTTOM" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/i=
+mg22.gif"></p><p>
+</p><p>
+With the first result we have
+</p><p>
+</p><p><img align=3D"BOTTOM" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/i=
+mg23.gif"></p><p>
+</p><p>
+where
+</p><p>
+</p><p><img align=3D"BOTTOM" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/i=
+mg24.gif"></p><p>
+</p><p>
+with
+</p><p>
+</p><p><img align=3D"BOTTOM" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/i=
+mg25.gif"></p><p>
+and
+</p><p><img align=3D"BOTTOM" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/i=
+mg26.gif"></p><p>
+</p><p>
+The key observation is that we can use for all <img align=3D"MIDDLE" alt=3D=
+"" src=3D"https://bellard.org/pi/pi_n2/img27.gif"> the same
+modulo, hence
+</p><p>
+</p><p><img align=3D"BOTTOM" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/i=
+mg28.gif"></p><p>
+</p><p>
+This can be rewritten
+</p><p>
+</p><p><img align=3D"BOTTOM" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/i=
+mg29.gif"></p><p>
+</p><p>
+To have the digits after the n'th one, in base B, we compute
+</p><p>
+</p><p><img align=3D"BOTTOM" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/i=
+mg30.gif"></p><p>
+</p><p>
+The running time is <img align=3D"MIDDLE" alt=3D"" src=3D"https://bellard.o=
+rg/pi/pi_n2/img31.gif"> and the memory requirements stay
+<img align=3D"MIDDLE" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/img32.gi=
+f"> if we suppose that:
+</p><p>
+</p><ul><li> <img align=3D"MIDDLE" alt=3D"" src=3D"https://bellard.org/pi/p=
+i_n2/img33.gif">, <img align=3D"MIDDLE" alt=3D"" src=3D"https://bellard.org=
+/pi/pi_n2/img34.gif">, <img align=3D"MIDDLE" alt=3D"" src=3D"https://bellar=
+d.org/pi/pi_n2/img35.gif">, <img align=3D"MIDDLE" alt=3D"" src=3D"https://b=
+ellard.org/pi/pi_n2/img36.gif"> and <img align=3D"MIDDLE" alt=3D"" src=3D"h=
+ttps://bellard.org/pi/pi_n2/img37.gif"> are given.
+<p>
+</p></li><li> <img align=3D"MIDDLE" alt=3D"" src=3D"https://bellard.org/pi/=
+pi_n2/img38.gif"> for every <b>i</b>. We suppose that M fits in
+a computer word so that each operation takes a time of <img align=3D"MIDDLE=
+" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/img39.gif"> except the
+modulo inversion which takes a time of <img align=3D"MIDDLE" alt=3D"" src=
+=3D"https://bellard.org/pi/pi_n2/img40.gif">.
+<p>
+</p></li><li> <img align=3D"MIDDLE" alt=3D"" src=3D"https://bellard.org/pi/=
+pi_n2/img41.gif"> is small so an exponentiation by it takes a time of <img =
+align=3D"MIDDLE" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/img42.gif">.
+<p>
+</p></li></ul><h1><a name=3D"SECTION00030000000000000000">3 Application</a>=
+</h1>
+<p>
+Given
+</p><p><img align=3D"BOTTOM" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/i=
+mg43.gif"></p><p> we can use the result of section <a href=3D"https://bella=
+rd.org/pi/pi_n2/pi_n2.html#res2">2</a> because if <b>p</b> is a
+prime number, we notice that </p><p><img align=3D"BOTTOM" alt=3D"" src=3D"h=
+ttps://bellard.org/pi/pi_n2/img44.gif"></p><p> where <img align=3D"MIDDLE" =
+alt=3D"" src=3D"https://bellard.org/pi/pi_n2/img45.gif"> is the multiplicit=
+y of
+<b>p</b> in <b>n</b>. It comes from the relation
+</p><p><img align=3D"BOTTOM" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/i=
+mg46.gif"></p><p>
+</p><p>
+Hence, if we want the n'th digit of <img align=3D"BOTTOM" alt=3D"" src=3D"h=
+ttps://bellard.org/pi/pi_n2/img47.gif"> in base B, we may use the
+following algorithm:
+</p><p>
+</p><ul><li> <img align=3D"MIDDLE" alt=3D"" src=3D"https://bellard.org/pi/p=
+i_n2/img48.gif"> where
+  <img align=3D"BOTTOM" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/img49.=
+gif"> is a small integer to ensure we have the precision needed
+  ; <img align=3D"BOTTOM" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/img5=
+0.gif">.
+<p>
+</p></li><li> For each prime number <b>a</b> with <b>2 &lt; a &lt; 2N</b>, =
+do:
+<p>
+  </p><ul><li>
+    <img align=3D"MIDDLE" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/img5=
+1.gif"> ;
+    <img align=3D"BOTTOM" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/img5=
+2.gif">.
+<p>
+  </p></li><li>
+    <img align=3D"BOTTOM" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/img5=
+3.gif"> ;=20
+    <img align=3D"BOTTOM" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/img5=
+4.gif"> ;
+    <img align=3D"BOTTOM" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/img5=
+5.gif"> ;
+    <img align=3D"BOTTOM" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/img5=
+6.gif">.
+<p>
+  </p></li><li> for <b>k</b> in <img align=3D"BOTTOM" alt=3D"" src=3D"https=
+://bellard.org/pi/pi_n2/img57.gif"> do:
+<p>
+</p><ul><li>=20
+<img align=3D"MIDDLE" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/img58.gi=
+f"> ;
+<img align=3D"MIDDLE" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/img59.gi=
+f"> ;
+<img align=3D"MIDDLE" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/img60.gi=
+f">.
+<p>
+</p></li><li> if <img align=3D"MIDDLE" alt=3D"" src=3D"https://bellard.org/=
+pi/pi_n2/img61.gif"> do: <img align=3D"MIDDLE" alt=3D"" src=3D"https://bell=
+ard.org/pi/pi_n2/img62.gif">.
+<p>
+</p></li></ul>
+<p>
+</p></li><li> <img align=3D"BOTTOM" alt=3D"" src=3D"https://bellard.org/pi/=
+pi_n2/img63.gif"> ;=20
+<img align=3D"MIDDLE" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/img64.gi=
+f">.
+<p>
+</p></li></ul>
+<p>
+</p></li><li> If we suppose that <img align=3D"MIDDLE" alt=3D"" src=3D"http=
+s://bellard.org/pi/pi_n2/img65.gif">, then, if we
+  neglect rounding errors,
+  <img align=3D"MIDDLE" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/img66.=
+gif">. The number <b>q</b> of
+  correct digits depends on <img align=3D"BOTTOM" alt=3D"" src=3D"https://b=
+ellard.org/pi/pi_n2/img67.gif">.
+<p>
+</p></li></ul>
+<p>
+The running time is <img align=3D"MIDDLE" alt=3D"" src=3D"https://bellard.o=
+rg/pi/pi_n2/img68.gif"> because there are <img align=3D"MIDDLE" alt=3D"" sr=
+c=3D"https://bellard.org/pi/pi_n2/img69.gif">
+prime numbers between <b>2</b> and <b>2n</b> . The memory requirements are,=
+ as
+expected, in <img align=3D"MIDDLE" alt=3D"" src=3D"https://bellard.org/pi/p=
+i_n2/img70.gif">.
+</p><p>
+</p><h1><a name=3D"SECTION00040000000000000000">4 Conclusion</a></h1>
+<p>
+We have presented an algorithm to compute the n'th digit in any base B of
+<img align=3D"BOTTOM" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/img71.gi=
+f"> whose running time is <img align=3D"MIDDLE" alt=3D"" src=3D"https://bel=
+lard.org/pi/pi_n2/img72.gif">. It has the same running time as other
+classical methods for computing <img align=3D"BOTTOM" alt=3D"" src=3D"https=
+://bellard.org/pi/pi_n2/img73.gif"> (e.g. arctangent formulas), but it
+uses little memory, it is very simple and does not need high precision
+computations. It is still slower than the BBP algorithm [<a href=3D"https:/=
+/bellard.org/pi/pi_n2/pi_n2.html#bbp95">2</a>], but it
+works in any base. As described in [<a href=3D"https://bellard.org/pi/pi_n2=
+/pi_n2.html#plo96">1</a>], the same algorithm may
+be used to compute other numbers such as <img align=3D"MIDDLE" alt=3D"" src=
+=3D"https://bellard.org/pi/pi_n2/img74.gif">, <img align=3D"BOTTOM" alt=3D"=
+" src=3D"https://bellard.org/pi/pi_n2/img75.gif">, <img align=3D"BOTTOM" al=
+t=3D"" src=3D"https://bellard.org/pi/pi_n2/img76.gif">,
+<img align=3D"BOTTOM" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/img77.gi=
+f"> and <img align=3D"MIDDLE" alt=3D"" src=3D"https://bellard.org/pi/pi_n2/=
+img78.gif">.
+</p><p>
+ </p><p><a name=3D"SECTIONREF"></a></p><h2><a name=3D"SECTIONREF">Reference=
+s</a></h2><p>
+</p><dl compact=3D"">
+<dt><a name=3D"plo96"><strong>1</strong></a></dt><dd> Simon Plouffe, <i> On=
+ the computation of the n'th=20
+decimal digit of various transcendental numbers</i>, November 1996.
+<p>
+</p></dd><dt><a name=3D"bbp95"><strong>2</strong></a></dt><dd> David H. Bai=
+ley, Peter B. Borwein and=20
+Simon Plouffe, <i> On the Rapid Computation of Various Polylogarithmic
+Constants</i>, April 1997 in Mathematics of Computation.
+</dd></dl><br> <hr>
+<p></p><address>
+Sun Jan 12 22:34:36 MET 1997 <br>Fabrice Bellard  (<a href=3D"http://bellar=
+d.org/">
+http://bellard.org/ </a>)
+</address>
+
+</body></html>
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img3.gif
+
+R0lGODlhCAAHAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAIAAcAAAIODI5nEO3MnJkPyqhWywUAOw==
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img4.gif
+
+R0lGODlhWQAgAIAAAAAAAL+/vyH5BAEAAAEALAAAAABZACAAAALdjI+py+0PA5ix2osdMDTjuXli
+EnYjVIbnCK5qk64cynQvR7WIqZn89VvwYpLX0Hh72JKRYO2whEKTvgrRSbOqQMgiddu8MmEzrXLj
+rE65W11x52bn4GwSLag7EmtgqQQHuBY4dYbXRrInlDj31kjoOMhn+OgHqRBFmJP4F2l56YZzSAmK
+GKnp0xUKV5hK2cioWMn5tfrWyvfK1Irl1YbKVTb4M7Yj+CSDm2nB29mDLFTKXKz0QeyyJ+1Z+vGs
+OJyl0S0+Tl5ufo6err7O3u7+Dh8vP09fb3+Pn68vXwAAOw==
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img5.gif
+
+R0lGODlhKAAcAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAoABwAAAJtjI+pawAMY3yBynldpfa49yXa
+1XDdWCJodnpd2pDlCa5wJeP6xiso/fmFVD3VaDW0LYI+i+34Wg6NLlFVwjQ6aa6oaFq89TReKnRJ
+FTO25V0uTVLm2ms6RI59e/T8vv8PGCg4SFhoeIiYqChRAAA7
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img6.gif
+
+R0lGODlhHwAYAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAfABgAAAJRjI8ZoMgJ4pLuGXrtrDzje3xZ
+qIhSpI0glJ6pupQvI05PjaNyOPc5v2OZMD+hZhjkUGoxHurobKykQCrLOsVWpUzsy6ENi8fksvmM
+TqvX7HIBADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img7.gif
+
+R0lGODlhCAAHAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAIAAcAAAIODI5nEO3MnJkPyqhWywUAOw==
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img8.gif
+
+R0lGODlhsAErAIAAAAAAAL+/vyH5BAEAAAEALAAAAACwASsAAAL+jI+py+0Po5y02muA3hr7D4bi
+SJbmiabqam3Zy8byTNf2jedl1wWADgwKh8Rhr8j6+X4upPMJjUoTxylJia1at9yuN6T9isfksnmk
+PKvX7HaZk3bL5/Q6rRe36/f8fgSvByc46FdoeJa1x8GweOj4yJWoGJZBCXmJGYTV16TQmQkaevMZ
+aElal6eS6rYqKmS51NJ6cVo5e2cSB5t7W7HbiLEL4yDselKl27tQPFG7pBwD3ZzGfCUC7Mkkzajc
+vW2Mkuxb/WdKrrpDbXNOPMvu8Q5eg/ztY49mXh+efqAPEr/MnT9ambDNGyTIFh44EDbha+WMYUNg
+hBTewtZJ4jD+ixQ0MsLHrUmjhNl6FXOmRhIChAC5VYJxhF6/B4ACImwQkdLClatqvoS5EudPHkR/
+xuqn8pfKo0hLVgyIU93MWDrDsITIVA7KjldhacsTU9xGm1u5Qqxq9F5InjORuTxac2dauWrfymQL
+RuBcbTRNNszKqmwSotQK462brem1fMumTmRymK9jKg4RqxU77JvUdouj7gXsiWYzVJIp30z3VTFV
+oxcP8zxtc23o1aCH3ouZ9SzTVImW9q4ddLVBqyw92xWnFPFV43N8vn76kLXhpEJdI4VdUjaVl6kb
+v6BeVzduoLTdUv3Em7s93uyxU2auK21isMXffiRj8Iq0zRTSCXtUeN1Apmn3XFghLXIaSU4FGKB5
+FiXVXkbp/fPfMwtdyNh95TAnT0td5KSZgPAM5E1wG1r3xn4eXiJYShlKsOI0Y3HVl4l/bccGNPnJ
+85GIkbzoRIU0wqijcj4SwUyLPFZmB4ic8KLFkUjyyMuMWuUnJJUoakmlgs1V5B6XYo4ZmZRknolm
+jlumyWabgbznZpxyXhlWjHPeiWeeRE6kZ59+TtmXmX8OSmiVhR6K6DGFkWRnoo4e2mKjj076Z5KC
+UoopnnVKJGmmnsZ5kpKfulEAADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img9.gif
+
+R0lGODlhWwAWAIAAAAAAAL+/vyH5BAEAAAEALAAAAABbABYAAAKaDBCpy+17npwPURevbnl7+Cld
+eI2kZoXpSa1sSR7yW8muPdvQLOqY30ukTEIccCfkDIcikMHJyHR8TFoxGV02Dauj68ptWojW8Xda
+HXkxW6f0WzSSzcogVs3DRq+IyDheIwf3Vwf2pHfYxRamkxdmxTWYI9eDdxTHQ/YIydlpmOUZCqkp
+Wmp6ipqqusra6voKGys7S1trextbAAA7
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img10.gif
+
+R0lGODlhqAAdAIAAAAAAAL+/vyH5BAEAAAEALAAAAACoAB0AAAL+jI+py+0Po1QAzIuz3rzjanni
+qIXgiYZkpLLtCsdHNb8GLT+4myd2P9kFhDWg48cg5pBGne+nbN5UqVY0xpQmn4tr08v9bkCyVxSc
+QTkhJ0pqSK4R1e44ghY/V/XhvggnNJfFMzVjeDh051YoZ4LYIdg1eAFoZTapQ0XFWBi4CKeIOXYp
+ubKZ6bGjygnq6fMICyq5V3oHRdpV9NoKFwmpeRho4arIa5xo90T7qesn2wfVicw82nx682hjMtzb
+CzyC69ww+caK/YtX1aic7K2KhBYk/tzmThZvO6/1By/KZllrGjR8sfzto2SQw7uAz2AR5JbvoEQs
+U+zQoacOX70yWBM7SgzXDJXHkSQFhiyJMuU/YSpbuhyn7aXMmTRr2ryJM6fOnTx7+vwJNKjQoURd
+FgAAOw==
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img11.gif
+
+R0lGODlhcAAWAIAAAAAAAL+/vyH5BAEAAAEALAAAAABwABYAAAK1jI+pywbQopwS0ovpy7w7D3Jb
+SDZWiS5nyq7Z47IBPKo1Q8OzftBIjvP9TpDVzZETJkZEy4Z3RPaIvd+nqmA2a7wriYndeWPS8sy8
+u5G1VSO55Fy/mlh195wN6+22ZBTP5jUVNHhlp6YiVVQ0NLXm9+eERPVx12hGaWiVJ+YDWfjFN0mX
+pfM5OqTkCPV2KYNW+grXCvr6VyvbcZvL2+v7CxwsPExcbHyMnKy8zNzs/AwdLZ1QAAA7
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img12.gif
+
+R0lGODlhUAEvAIAAAAAAAL+/vyH5BAEAAAEALAAAAABQAS8AAAL+jI+py+0Po5y02iuB3hr7D4bi
+SJbmiXqbAbDpC8fyTNc20nVBe/f+DwwKL7ycbohMKpfMT5F1bEqn1Kr1is1qt9yu9wsOi8fksvmM
+TkM47DY75I6v1PT6i7Oeg/ALvv0PKKL3EOVUeDAYqLg44UfIs3cIBclYaYmIk9hAqSK545lxKToD
+alHoGKM5aSjDyVA6ugXb6PpZm6Jqu9caMRuL5du7GQznmUubmnf7K0uyfGySC927PFLtcs1s9bY7
+nN1HLG2MqlDrZguJyr3pov2l4ypnXk3ucNSSPn+rCk95Oo8oXbuB/uw9cecFXqRH3wIGFAhun6R+
+mRJMzIcpihH+HAbrIdwGZaHBCv6+iTOH6RE4h9hKfuL4CuPHZi8tylk5zFTFkBFjonyJL9FFljtq
+htTIjuhMYAMzxcEZUyfLkz77HC0aDyDPolwJwixnc6mWaY1ymjpn1KZEfXoOsUXHR926SfmIiTUj
+8cS4tRT+3f1LKmvZDHx7Dv4KODEul4QF7Q3Fya7iyX0fNnZcmGFkypwXy3taTNNcs51L3/kM2lAb
+uh5Nu34NO7bs2bRr276NO/cSX5J1+xZisjdpizt/G4/WkBrUrsebk04tnKTz6dQaRldbBO116rKD
+bc9YrmRy7rfvoU3LinhY8uR5k1XOes539vSJrL9fP/8d5ugO9ftPNch8/w14GWJ2FAAAOw==
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img13.gif
+
+R0lGODlhTwErAIAAAAAAAL+/vyH5BAEAAAEALAAAAABPASsAAAL+jI+py+0Po5y02ovzBLxzDYbi
+SJbmiaZmZwCtCsfyTNd2/H2Be/f+DwwKLbycbohMKpfMTLF1bEqn1Kr1is1qt9yu9wtWscLkstl3
+dPF267P73fXI53JGOg3P67EeSH/RFrU3SNg05teGELgmWOj4WPOHCKhY1AiJmXki+ZAINQelKbrn
+GUrCeVq62XA56orhiRpyWNK6Akj7qnuhauvka6XKtkvMayf8ixzMqly8hUrHFgUta7oCfF3HuV1t
+7UxmmXB3wKhIbo7LTNfcnTL+Ag8fyPxtlmuNN0yuNp+Oct9pXTQF73Z420avHrh7BcPt0xdPXDNY
+E2sxKgdRWj+3fwq/GCF48VzGjyJBqhvoANumkPIWTUvY0YuOWCwNRsQYsdJJUAF7NCxpc6NJdDGv
+yOqzbp8gnkoB/vLJIuknlwzrZCyK9V/FrFyxqszZNayur1fFmtXkdOixtGfbxhEINyFZt3SnwI17
+DN/Wunzf4LTZNzCkcHsFGwYXit/hxaS0zWUMGQa2x2UjW7bBjjLly5xpaC7cOTTFqZI2iz4tRqVp
+1KyvRVjdOvYsS0xhy77NK7PtJQUAADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img14.gif
+
+R0lGODlhMAAYAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAwABgAAAJpjGGpy+2LFIiv2kPDTPv613Hi
+12TOZHYmeVwhF2XobK3MhopvrtmSi6PQJLHV7OjLyXij3g3JJL4wO+EUUkNEh5iur1UJLjVEWO3c
+k4FZP3bX6V6zx/H69FtH5/f8vv8PGCg4SFhoeFgAADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img15.gif
+
+R0lGODlhJAAYAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAkABgAAAJJTACmy+2XFHqQNjQNttuuXHkQ
+SIFTV5KOeUai+rmby6FXhNH1iyc2kxOFWjoJLKXRHIu1oPAJjUpTOef0is1qt9yu9wsOi8fgAgA7
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img16.gif
+
+R0lGODlhOQEOAIAAAAAAAL+/vyH5BAEAAAEALAAAAAA5AQ4AAALdjI+py+0Po5y02ouzBZzrD4bi
+SJZm1KXA+aid8QYrCzcejef6Ht7wzPshbh4fCziMBZfM5s4oQz6RxJ+0dD1AndyudyPd5nyxmZiU
+FX7X7LbiegalEtT0wrWaa5VRPt3uFig4BgeYhJdmBoRXQbaoNVQDyRA3aHkpslWp4We0+bc36cln
+94l5iioBZYqhp/aKsvgYdUhlY5iaq/tXp+i3h3iXJ1tH4Sjaa0uJu9ucuuor+YaYVQXLGvo6K6ks
+3OIMbhmcRCunND4xh+7a9+uyHB7fHC1fb38vB4vPUgAAOw==
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img17.gif
+
+R0lGODlhZAErAIAAAAAAAL+/vyH5BAEAAAEALAAAAABkASsAAAL+jI+py+0Po5y02nuA3hr7D4bi
+SJbmiabNZgCtCsfyTNf2PXVd4OL+DwwKh6meblficFrLWI8IjUqnDCPzmcQqX06q9wsOi5A811GG
+FavXbDGSZSSj0u26/T6WrxC7eFVpxpIheKVXSIeXqNj2xsOnBVjx9kTJx3X5yDS4yNmZBQi6pTCp
+lUBmuEJZWfZ4utC36ik7a9HkYGu5eQtJMZmhOeg6+ktbbNyLOorIq3uVmaNKfEroOMwaeJytHYz4
+SsdcBs6K3BxbXWp9lLzNvoh7qxwJHC4KrV6PK98quN7u/xEKDTUS/dYUHPPnX6JpAruBOOjGYZJ4
+EhWCkQMRYEb9iza6beRIBGPFPCNB3vBY0iSUbykfflRpKpKtd/ViwlSjB2Kog+9uQiuHyRxKn2Fy
+tnR5dKfSpUybOn2qz+Y8bJuEKSN6Mc1LD1uJ+nrB0KpUrFOo8et5qGYqsrWigeUl9hnbKCKdVaMY
+de3cn1ODEsMk9+/ejqBsdt01WMKSgPRi0sR3NDGNOJEfHJaMGaQfgi0rZ/6cOeNl0KSxDtT7Q23p
+1RGhjtY4j7XsrK49j4AVeLbu1ebu7v5N2o9t4MRVCo9dPPlceaeVO58z8nWR4c+rQ4guHbr17T6y
+n/DO3TopUeDDm6fLk/r59VTSs3/faXyT8vDr1yiI1r6CAgA7
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img18.gif
+
+R0lGODlhHwAYAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAfABgAAAJRjI8ZoMgJ4pLuGXrtrDzje3xZ
+qIhSpI0glJ6pupQvI05PjaNyOPc5v2OZMD+hZhjkUGoxHurobKykQCrLOsVWpUzsy6ENi8fksvmM
+TqvX7HIBADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img19.gif
+
+R0lGODlhQAAYAIAAAAAAAL+/vyH5BAEAAAEALAAAAABAABgAAAJ7jGGpe+wP4wJIKmqzvnWH7oUO
+uGHieZ0mipLUG5FsCZrrV3c3tNPcUZvoMjBVsBGTWXqaWwXzdEUTr6pOybEinMAPTvptYoFPZK5K
+daXFEmjZu8ytydY5rwtjClP2pG0KFwXINjMzNlKYqLjI2Oj4CBkpOUlZaXmJ2VgAADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img20.gif
+
+R0lGODlhFAAWAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAUABYAAAI1jAGBae2NHHsvSkot3mpxvkwd
+E1ZaB21aqRxmapHVNUKT2B64N+ufLsL9hsSi8YhMKpdMQwEAOw==
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img21.gif
+
+R0lGODlhJgEwAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAmATAAAAL+jI+py+0Po5y02ouzDqCb7m3i
+SJbmiaaqE3LrC8fyTMMg8NX6zve+igvhfsSi8fgbgpDMpvO5GXKk0Kr1+pS2sNyuV7Y8UCfbr/mM
+JpXT7La7sX7L5+gx/Y6/3uz5vj+p9MH3R1gouIeYyBKYY+joeAMRCSdY+XhJGCY52Cg0iQk69/kQ
+1yk2Gppa4qG5gkrJ0PqqSpuxxWkyGzWFW+tLOta7Wmpr+XtMQRzTitzMo2uj7DwdLR2baM1Lvb0T
+5s08As09ftJi7pp9ir0uTH4ZrOQNty6R7n4fESw21bjAnt8On0Bg+wqCGzYwoQZmWgJasEdQYcKG
+KSBGlHhPFgpxe70OYvwYxaG0ICBLhks3sp/JlRXY/ZunkqXMTS4VzftkcabOhxQL7vxZDoE5h0CL
+kkow1KPRpTcbelLKNGpLqFIzEs3pgmpVciJzxtv6ESJWsCb3HDJrjGxVtBfVShUnlKjbstp4sR07
+V+FXmnIZFAAAOw==
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img22.gif
+
+R0lGODlh0AErAIAAAAAAAL+/vyH5BAEAAAEALAAAAADQASsAAAL+jI+py+0PEZh0xouz3rz7D4bi
+SJbmiaYJZQCtCsfyTNf2jee0ZQWuDgwKh8Si8Qj68XrIpvMJjUqnvpePSc1qt9yu9wsOi8fksvmM
+TqvX7Lb7DY/L5/R6rYLPs+z8vv9cwRD4R1homLWnkAjR81O14ngoOUkZsSiB9eAYucBZ+Qk6eXkw
+2qB0qujiSagXOYjHtYoiW0b7lDmL26IreEXqOagRbLan9Pu4i0xiy7HJvPycwbs7zRj9XI2TLVJ6
+Fe0Nmfodrmyds43pi2x8PFvSOM49MhyOLnhtXtT9zrtviVrFXjp1muJB24CqWDJVVt7xa7jDoINp
+ApNIFMIwRjf+f9IurpAwkeMJehfYFQsEa+TDcjIqFjTlEWEsiCk29iPZSR4pmMwSxfyFjcnPgidT
+Uqs2zGcwTkb/cRw6UBy8qaNEbhM5o1HUTq1s2VwF7w7IVBjCEmx3r2OymuwIbhqbU90SVQCxmF3L
+Fa9eXV1pUXy70xeuUn17uWSbdORNsACzwsWEzhnNwPfsST4L7fIju2nlmqzrqjHLgZnsQtVLzjRm
+chMZrdam+bA1WYQpv172mGxI1Lpf+haqOKPbvZ0Bw9W8TprtziH+7qXbWlNZIqGB8u0akjbfhZNN
+uCKq3S3jp/uWaDQG3QrnvMA/Cj6bkPdYHke3Ws8DMz/89Oz+peJnDgRTzhCGHU+VxUWfQ3ndBsl4
+A3KF1VfVebcTf8aNJphxnwX03XuLMMVdQKxBpod+CyojWj3+NTWiIucJVdRpQB24onwI+cVgLy2+
+hlN0LWIlTF9LsWhdkUe1d2RsAiYFYnNEpvQKTv6M4xxG4MyzWEmyxQWhCtsBeeMWsl3T4T/2gWHZ
+ljvY2MFXZckoYzOSpbhSFFrJmU93Oi4XBplqiuGmltzEVFgzWrby5hREJsqodBOOEdmfgGYpKCCh
+JBFcmZBeeqR/fcTJKZahsoGoN4uOimqqqq7KaquuvgprrLLOSmuttt6Ka64wXAWqrr7+qhJRwA5L
+rBaSFoslbLJqJXmXss4+iyWZ0E5LrQeRVotttnmWeqy23ubKa7ffjgtEAQA7
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img23.gif
+
+R0lGODlhNQEsAIAAAAAAAL+/vyH5BAEAAAEALAAAAAA1ASwAAAL+jI+py+0Po5y02oszA7xzDYbi
+SJbmiaZHZwCtCsfyTNd2832Be/f+DwzWeDmd8IhMKpe7187IjEqn1Kr1is1qt9yuV8n6isdkkdHF
+e5bX7JnnDX9jzue2/W7yQPSXtBoPGGgG5UA44UcnqLi4F9bYh6DjyEhZ+WS40RfX4mfpSVPUmcJ3
+g/l5egIlOmoa04oKC0K4ykobe7v16qqL20tFWsrrO8wEHAa8EseLTNz8q5pmKyscqWx9jS3tfEsn
+yboNvtRZ571h/bhblBw9Gc6dgMgpfY0OI0fkKIfjTlkXmYyCWgg0aF6oqsdvUbsmnFJpm0OkIcGJ
++BbCSwhr0sOCCgI3rvg4CqNICx09OhHI0eRIkRYXoGzib6XMIdk2HXo5M+eImjYz4NQJtMrPoESL
+qSyKFBQzgEmbHpF01KlUmg2nWp1GwVQ0eFGvTjXZEh/DsV7LFlKpVaLZtRH0XdKn1e1QtkTdns06
+ly7QpS6P5tWbc+I6uH67AtYpthHKvxIKAAA7
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img24.gif
+
+R0lGODlhUgEwAIAAAAAAAL+/vyH5BAEAAAEALAAAAABSATAAAAL+jI+py+0Po5y02osD2GbzDIbi
+SJbmiabq82nrC8fyTNe0B3T2zvf+DwzlPrmg8YhMKktFz/IJjUqTRU11is1qt6JqiwsOi8HOw3WM
+TqvX7Lb7DY/L5/S6/Y5X46yI8j4PGAiFM2Tm9yeYKETI2HgmOFSo0/KoaGmB2JAJWXjIQXgZelEG
+8VVHJJq64kXKUtml5KU6a/K1qZlimjvR1ET7i6F7W/Nay8sHnDzK0Lqje1Kc0PqsXC2tSS2TTRLt
+ah3XbMy87RBeUdloRdkMqtC+QP7NReni6ggfbV4u242Nb2hGR0CBBAEi+yePzTpWXfLpG2eIYZ9X
+z9YFtBWpj7vhXgnvXLE1gtxDeBM1uoO40aALjAfrmXTZkc7HfurSpdx3riROhNIkrpzZ8hFHnzEV
+6mw58d5NlBSAdhC6qaJPXwNhCn3qkmbRLfdGNt3ZNF24dwUjRmL01BTapF63yoknoRjcsBvVatV2
+1y2auaXQ5Y17dRqStnr1/AWLNS4vVhxVGuFbWJXTCJCvMYt1OLLkuZVfZumsWZSj0YQvhz4thTRp
+1Kxbu34NO7bs2bRr276NO7cyyKB1+4a2OPPv4Q3pEj8+o51SpMiboyDrz7n056V7T79O0tM769i7
+14M77FsBADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img25.gif
+
+R0lGODlhtQEoAIAAAAAAAL+/vyH5BAEAAAEALAAAAAC1ASgAAAL+jI+py+0Po5y02ouz3vyBDwQf
+Ahpg2KXqyrbuC8fyTEdniIqlvtf+DwwKh8QiDYc7IJXGpvMJ5d2mp+go2hwhUdUb9gsOq6oLMuSa
+a/Wc6CNX1hbL59g16WpjKtP4Sz+rJ6Lwh5GT5mJoMnhI1+ioWHjHaELYwDVJkoDJUEl06TFo8SmY
+QaXXCfmoSteHqsnXaeewtPdKqjPhmrIZikeodVdBG0P7m8RpKFtktjr0p0v5iqlc9mzdKm0GzcEr
+aZutSbG2LdrKyPyt1f0T1+y8mCeNvO5xaEdOrkFveW6sv8+t3758/3KNchfknASB8zaMGobrDLUx
+BSNCjFgIoMP+hxhnaSw1MVMgRyFh2EMXSl61aSgVHeQU0AuzmS2l0IPGciLBXQPVyerxEdkZkY18
+3fLHj0q/dNG+eVtZrSm8VPwC1krFh+okNDdtLO3IRtzLdGPBetyUlWSyRGV4MqUqdU/OqGYzWpX6
+cibdnR6n8rVSNlC7cAYrpS0arJ5bkVynPl20dWRdr3cx5h3XVmvQxERPqmq8t9tOZYdZcTbcUinS
+U5eAMoSaElhcsZWNdtQb+9hmzqyPrgINz9fWmo9TwpUDi9Jw0qodQ1orHHLD3LcqWrdd/Y3k58dq
+c6/+O7AUuStdlQTOylRd4uJUKrcnHXY2rn/B+ymhVC4slFPwZou62p9/yOXn1FXgTDdUfV8YxgM3
+CWLjXoSg7KbgMhXmUxJCQvWCmli7gRGdeMLwMtY1CFLmh4YXjqhhObWI2CIiL9RnzlwG3afih6N9
+GKN9PR5BTCnFDQlKijkKyeKP/ykJBI8+UJOhS0xOOaWTVFLpxXwSVXhll15++Zl6BPYFZplmnolm
+mmquyWabbr4JZ5xyzklnnXbeiWeeet6Y2WR7/glonB0eF2ihhtJp5aGKLhoefTIlymikkj7RnYFR
+TopppgsqxJumnn66qX5dQApqqaY6VKCAp67KqoyetQprrHCMQ6qstt7qX624sloAADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img26.gif
+
+R0lGODlhOwEQAIAAAAAAAL+/vyH5BAEAAAEALAAAAAA7ARAAAALpjI+py+0Po5y02ouzARwwjnSe
+RiZiiabqyrZuBQajEste/U7xnPf+DwxmdrxPUdggIpfMpjPFO9KkT1mois1qO83odCQ6cjdBr/aM
+BtZuoSLuG36TD9I11bYBu++2uNxKlyY4yGJnZqJy2EZ3N7OzwAdzRUhZeREViQc1aeJIpZSUqcNp
+WWr6scgIV+f3p6iaZ6Q5yzjW2QpJerp7ilm7CtnKGjsFC/d76yocTAzI+0yI21wrGnHDChJW3HmM
+cm0MHd4r1uf9Z05TXmIr3s6rpDceG+9eb79+X32/z59rr98vYD+AlAiiKAAAOw==
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img27.gif
+
+R0lGODlhGAAPAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAYAA8AAAIvTICmy5wGznqKWipbhHO3XoGV
+NyLYRULmyo6a+TmpBMfqvWH2tPeZb5sBh8RisQAAOw==
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img28.gif
+
+R0lGODlhkQEoAIAAAAAAAL+/vyH5BAEAAAEALAAAAACRASgAAAL+jI+py+0Po5y02ouzXqCD0CGe
+4X3biVYlaJIh+6byTNf2jePl165wnAuqVr3RryVMKpfMZpLHO0Clzipj2mNRrdyudQcOexVASghq
+IvrGzDPMdV6z5/SUXGSMvJC0vGMfBFgHIThoeKjkh8f3kOWSUDakt6VDyRjp5Yi4yXmCpCiF2ZDG
+CGk6IXpaeCFG8vg3SOraScuZird4dUum9YpbhFrKu4sy5RsKEojaW9u8SVwGChf8GSlXvYPbCETM
+Gn0pPSNMxj3ufO4ETS4cHrwOaa4tmQgeX5zRja6fY58Mz55vFLJk5fS0G9XPjiyCCfHha7iPzUEd
+d07l4iAqGwf+f8yuPGwXUFw/MWvuaPyXKmRELjGiDHyJMUwpQd/excR4TB5HhN5ySnTnK40ISjtf
+qVxpqCW3jQpnFbWWEdMeiNt6dtSnlErBpfB8Ij1XjRBVWL1q/tM1k6hXg6zUHu2S1dXWT7ycrv16
+KCxMOFJlpi3rAyrAv272AlXxSFOzuAx/0VXlsiheW/JAnVzUSlUoI4LRMi3saaw/0FiBzXq881Li
+JaInxzwpuPXZzag3e16Xp6KE1mAM2xohky/KbyVls3UdSPVEDGjUvrm5jLdxm8hrLK/+e/VVO8eI
+3z6MuM907LrITx6/odzgeexlvDX/Bz18lj9tQ1/W1rr8+duB+S9OGlVDkflHYIEGulfRZQi9d2CD
+DvoX3BHXMfhghRZeiGGGGm7IYYcefghiiCKOSGKJJuKVkm8nrshiJgA512KMMs6x34w23miQUr1R
+iGOPPg41UxE1/khkjFJ1VWSSSlZFmxpLPgmlc1BFSWWRA95VZZY3mjSkll5meOSXDhYAADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img29.gif
+
+R0lGODlhjwEwAIAAAAAAAL+/vyH5BAEAAAEALAAAAACPATAAAAL+jI+py+0Po5y0gWsurrz7D4bi
+SJbmiaboFgDqC8fyTNf2XWpui/f+DwwKhybXZkdMKpfMprOz0zyn1Kr1KkOysNyu99vVIsHksvlM
+kx7GvS36DY/LOe65/Y5Hq/P8vr9q9Cc4SPgTNaXTIrbI5pfIspdYOClyhFAHpBOoCCkpqMnDydhI
+SaR5ioq5Arq2ZLT5elkae7hFWprkabH30rl2C6IKgfFaHKX7R8wpmoGMmyucEE0y1skbPN2cEWMZ
+eglsePgc58yQ/QDOZh0NrnCuxd1qwQQ/Tn49L93+ax6pVv5twjtt3qCckkeskbJ4Eo5ts6cHX8N9
+ioItc0CRILr+ivGOKJR4IiOPcxDDkHRHUeQCh+hG2drH6ySFmB9VfshIs+QbkBsj2MQ20WAaMSN/
+0rlpVOfEpBV47nJaMItPmjxl5oB5UBcyVvqqMlW6qxXWVFNtdutnwypBYWpH4CT6sGC9uPw4rvwK
+9u6vanhRyuxWpy1SoXa9+Hr4svBHjXml1pUX8q/Gxd9SWb6c+Chdw3BDJbblDnJjx4yfogo6cy3l
+oVC0dQbUmaXraqErvh6dI+DjyqeH/RQn6nbYqDONOpxr5bA32nQVuhadoq8csheL/H4ZsyHk1bXp
+cDWZ8GAzN+L3QrWOG2Vkatdwlu6ub316wekHX82dc5jdwJuoZFmXnsd59aHHnkA98deSOjUpuEp9
+9A2YiUgPEjeVX/DdNx+AENYgYGFpsRRLFhriMeGGH2LW23/vjGhii/egWF6BHprjYo02wuDRjTru
+yKFoJfIIZJCewSJkkUY29dyRSi6JESs/MgmlE3+xeBeVUV4phIRPtoRllxEVN8OWXo6JA1fUiTkc
+mWpi8V2aa75pD0DqwUnnM8WYJwmade55hWxN6slnFwUAADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img30.gif
+
+R0lGODlhcQEvAIAAAAAAAL+/vyH5BAEAAAEALAAAAABxAS8AAAL+jI+py+0Po5y02ouz3hV4EHjI
+Z3wgh6bqyrbuC8esCZ4heePyzvf+Dwz6arUD0ShMKpfMCE3XjCZExJMpJ5Jqt9wVztpNZm3hsvk8
+O4bQQyT7DY8/rNXWM4slu/QOulsOGGgGlrNHRjUmw9egJuj4CLmBd1PS+LK4AEUZydnpaWTzVYmZ
+Qupk+pmqOjTZNxJamfmE9TpJw3CLi7rK26uCVwRae0UBDFsygvz3Gqvr+wydBno4dbjL3Ly2OUqt
+MHYdHa56R547hc1oXRx6bAu1eCwuH07cp6mcvV0oPGHs5m4rUyw/8wqOa5VOIL99+RDOYfenW7dz
+lAgZvNip3kP+b3cWkutA4iO3YQhnYTx5qWMMja7WcXJYhhRMlD3cKbqHYiYcnDFl6aR5s9pNcBd/
+bpFJFKg0dDB4AjWqBalSIXygSrJqECuGjvVYmuM4FUhJcOWuOQ3bFKKyiRPBoq1ZNWkGlg/L2r2L
+N6/evXxNut1mCVEyZ295tNJ6VW7huWrX2AxIeHFaa3R4lpWAWPLWxoEDJ9ScUug+TJchZA5zBeDI
+Jv7WDtaG729s0Iz9DlR8KmPqaZVPewmp0utXbt9oGx61NGNFJMCMO5eULyfuKImWfwF+9rn2H1in
+N122PXyc7t4vZSsvPv2O7Auj6lMPv0tf35NFx7/PZD56uPha+/tn+l+AhQ0HoIAGPkXQgQqCVtyC
+DrJi2n4cxPPegxaWEqGE0C0H24UeQpjfQB+OWAo7JtH3Sy4okughexVStyKLF0IVY2gy3oiZiSpq
+aAePOBpoFF0w3lcAADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img31.gif
+
+R0lGODlhbgAYAIAAAAAAAL+/vyH5BAEAAAEALAAAAABuABgAAALrjI8ZoO0PY2Sy0XMxYDsvXyUd
+0oFbKGalMhqnRqoyCrWu89K55u03CUthaLUF0AKSJG0f04zpuiSJN5+FamTtoJ9YVzvkrbii79TH
+XP3K0m8ZaG1t5RRrsI5Thet8cN8+FyfV0xb1MJgFZhj10mhiiIcUIxgU5ja1RraWaNRYueeYN0mI
+WOl4Noha2HWSg8bXJynmRbto5nr0mWVT2Fpq6YrqFcpSm2qrJnuZljbKmpybabeJVV2xZW3rpoSZ
+Xe1Zi9VDNO0tDq2tM0Nu3n79/eYuP09fb3+Pn6+/z9/v/w8woMCBBAsaPFivAAA7
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img32.gif
+
+R0lGODlhHwAYAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAfABgAAAJRjI8ZoMgJ4pLuGXrtrDzje3xZ
+qIhSpI0glJ6pupQvI05PjaNyOPc5v2OZMD+hZhjkUGoxHurobKykQCrLOsVWpUzsy6ENi8fksvmM
+TqvX7HIBADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img33.gif
+
+R0lGODlhDAAWAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAMABYAAAImDBCpe+uGnooSHsqips3MDyWd
+F1qXOF1qNjrI6YpYRdf2jec6XgAAOw==
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img34.gif
+
+R0lGODlhEgAWAIAAAAAAAL+/vyH5BAEAAAEALAAAAAASABYAAAIujB8AyJ3rnIKRLVoNxFVp5DXT
+BIpU+IjgOX7rMcYw+aBZUt94qvf+DwwKh0RhAQA7
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img35.gif
+
+R0lGODlhDAAOAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAMAA4AAAIdDH6hmwbrWlPvUcho1YbXhCCM
+hY0lNJ3qyrZuUAAAOw==
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img36.gif
+
+R0lGODlhFgAPAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAWAA8AAAIuhIOAy50aToRMpiVpo1m7iSmW
+VRmmGXrPqZKpGn6iGz+R/cn5jvE+7AsKh0REAQA7
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img37.gif
+
+R0lGODlhIQAWAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAhABYAAAJJjI+gq7nGAJovSHvahXJPbl2b
+6Hyf2DVYiKHqurrcE4GsiedQ5un+/Xr9TBpPb0ipIIdC25LZfOqiUhy1ejpit9yu9wsOi8fDAgA7
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img38.gif
+
+R0lGODlhTAAjAIAAAAAAAL+/vyH5BAEAAAEALAAAAABMACMAAAKgjI8ZwLB+mmlQ2YuzjnRxNnXb
+SJYeWDngZLauhT5QR1XvDc/4zidpD9zNdMEiSWUzukQISc62UjaTvmioZVVmn1OqZttjZpyhlLiq
+BV9UkcfVLc1h2e6V3Rs/j69ED2saBzgyNNRWZxj4gffmFFW4mCiDYcah6AgZ6EWDRMYV+SkICqoG
+VFOThymqusra6voKGys7S1tre4ubq7vL27tbAAA7
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img39.gif
+
+R0lGODlhHwAYAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAfABgAAAJRjI8ZoMgJ4pLuGXrtrDzje3xZ
+qIhSpI0glJ6pupQvI05PjaNyOPc5v2OZMD+hZhjkUGoxHurobKykQCrLOsVWpUzsy6ENi8fksvmM
+TqvX7HIBADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img40.gif
+
+R0lGODlhSQAYAIAAAAAAAL+/vyH5BAEAAAEALAAAAABJABgAAAKxjI8ZoO3J3ouHVsCwXRHL710h
+ohkjR1rneH7Qxm2tfCls6jpwnMpq1kKZcLmh8fXz4YLCBdFUgmpCu0yleSVhpdCnysiCeTpAW1JM
+WZGX3bYW1Wmog2GiGp4Wc7fumC9v9+P31BbFNCdIeJNVReN2KEhVJZIXNpUlVTal98ajU9RHBSqX
+mMP0GTgKsTp6Shq643KnGqsT1dnKqrrL2+v7CxwsPExcbHyMnKy8zNzsvFsAADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img41.gif
+
+R0lGODlhIQAWAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAhABYAAAJJjI+gq7nGAJovSHvahXJPbl2b
+6Hyf2DVYiKHqurrcE4GsiedQ5un+/Xr9TBpPb0ipIIdC25LZfOqiUhy1ejpit9yu9wsOi8fDAgA7
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img42.gif
+
+R0lGODlhHwAYAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAfABgAAAJRjI8ZoMgJ4pLuGXrtrDzje3xZ
+qIhSpI0glJ6pupQvI05PjaNyOPc5v2OZMD+hZhjkUGoxHurobKykQCrLOsVWpUzsy6ENi8fksvmM
+TqvX7HIBADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img43.gif
+
+R0lGODlhQAE5AIAAAAAAAL+/vyH5BAEAAAEALAAAAABAATkAAAL+jI+py+0Po5y02ouzA7r7D4bi
+SJamxp3qyrbuC4MpAtSpPZt1zPf+D0zkDLcdkTUMKpfMZgSHUxhbU6f1il0mZ7bjpUrshsXZsvlc
+2oqj3yH3AEXL5/RKckQO6wPsuv8PeCcCxvfGVygIqLjIaMeRp1fUOElZubFDmGi5ycnYpdYZKpoG
+VWqqydBHgzra6gqhmgr59FhlxPqaq4soQQhbm2O4O0w8hltoNwYXV9xcFpsBnepMnSvsIV2tzal5
+e0z7vS3u1y0ZMjue7mS6QYvnqx4PVNv7IH0KL5Qvzx/zKHvq0rt9C/AZPIgQXb9R/wriEzhwoUQe
+mJ5AzPTQ3cTxjS7MtWvgTUpGe+GecWwU0p5Agm0msTy5CZVCFCXbgHlZD6aumh9wooCj75zOoRR8
+8twzZaYjokxJTvApEuieplRPKF0lgwuwqlyzJmSGbRW9rmSjfQVLU+yhsmzn2LraNq6WG5Ggyr0r
+Q6UXTASP4v0bFCSzIjL9AlYHNZ9dDIYPp/s2s/FTyY6rJU5EWWNlpoPZTZXyIvPmYmgFywotevSu
+bFEdolY9dCsisPAWm4UN0+MlX7YZp8adu6bt3sC5Cuf5u/jJknBbK1d9+ctz4EZl/5pOffJYWNi7
+717rPbzN5OJx8yVffvP59Owt8hpRAAA7
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img44.gif
+
+R0lGODlhZgEeAIAAAAAAAL+/vyH5BAEAAAEALAAAAABmAR4AAAL+jI+py+0Po5y02gkyuLz7D4bi
+SJbmSW6GirbuC8fyTI/Zytb6zvf+X7utgMSi8YhECjXMpPMJjUoZLA1uis1qtzDhNeDlisfk8iIM
+PqDN7LZbqYpX1++6/T7k5BTV722fsAfYMehRCHGYZuNQSIc35oh4yLQ09xAWWSGYeDmXqTYZyNmQ
+Sff5iHVKNRoiqDm4qdeXh0jFx3pbm4tqhnsmg4kbGXuRUxlhuquJDKjKC+XLB2zM2UQqSjH7pdip
+DIqhxuz97GRFS219DRzIeEqM40W5tAqfTvuNXQ9KeS+P0ByN3I5jYNBtG+ci2Blf74zliddo38GC
+7HY5VATxH0H+ihoFRrHEEd+wgIaoLVRFTKEcfPn8vAvZUeU2NBtpkvQ4baariR1zslyoS6TJPyB7
+hpuoMJfKDRn/sbSJsxxTk08n3ZRldNWwfEuTitRJFWbMoeYONhXrLCoNezA3cuPZwmu7iEYvwtqJ
+cWVYR/OO3u0pV6xaIHw1lhV8tVhFcNL2eXocz7C5s/20yoGYDh1NhIOfhF18tMtnQq8Af6Ccjepo
+nmk7+4hsq2VC0IaWAU78trXT26Fpw3WdxB9nlMLF/RQlL1nptlcxlTTLT/Zx4J5JS1opAS8Itp3W
+NPf9yjujW7qpo3JrPr16LUXXu38f3BP8+fR/HMNdP7/+1NME9xcpAAA7
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img45.gif
+
+R0lGODlhLQAYAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAtABgAAAJojI8Hye2xXgJRWkQvrFrz93VW
+NopiRlXcmpJNm04G6bpbZGP0hyoqjwv5ZsCdTkYEDXUo4DH5+rFaDJtxNglCmEKsLwZdbpAS1suU
+iyocXXYHFkqD2lVTyY7P6/f8vv8PGCg4SFhoUAAAOw==
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img46.gif
+
+R0lGODlhewEtAIAAAAAAAL+/vyH5BAEAAAEALAAAAAB7AS0AAAL+jI+py+0Po5y02ostyLz37YXi
+SJbmiaYGqLaaC8fyTNcTuwJ6vtsmzgPper6i8YicAYVEYBLjZLKcz6r1ij0Mt0tqNsIdKojfsvls
+W2p7XsYWG10L0fT66F3ussWSKXzMh2c3SHijZdaWsXeVWOj42MeU9+Nn1QiJmYnQpAklJdgZxBdK
+GrPHVbowtZgaeJkKy7EqGZuzSduKW7vrQcZaExYcXEEWsEojnDxqaMvrrKjWDLzsRv3AJm2tAlpd
+DNHk/SzugG0866Ot+nq40ryzfheuTiwJP15lv3nNvtgWJ8KtgTcqYbJFyUdPHqAxAo/NuwcHoTly
+qCZKe7gmnsL+BP8ASuSoLaAbhh8+QkyxsSGMjiFEgiGR8hs7QDFHljxpCYqpLjBrqup50yJNnUFx
+Jvlokh7IEun2xSvqzyfHXkmNauDUTk5TYzJYtpSq76nHhhKrCrW6kpavX0t3tr0lDAzYrGMBXpvL
+tShaFw6Lsb3VlWfPuQeVFcxIc1i1u4QTKwO8ly8uv4gXuoU8mBhQxxUtM9asNzKKdzjWVn4rGbWo
+zndfiJU1h6Jr2KJbcDMtVHBa1ebifit7dfGHmRgp2BvorzZVm6JO0+VLcjNo4yphu7zIrE9xzMp/
+cCf+fJvuurO/Xi7vqfs08OzxXvC6nOiNqLvl/96uPm3AcD7JFd//Hho50clFn23wwNcNfvlB914k
+ugg41Wv/wbUOf1uZF0liEwaxICx/odNfPoe551GFB1ZEYoeFOGSEYckkZEuKJbl4GIExmqUiGuDg
+aB2N11Un41c+/mhZkDna0Y84LNay5JG7gKNkk7k452SVSD7oIZZWbhmfbFddiMwlYLHGZZnDfRbc
+H2hmaGabgTUIyZhuzknbah8yxuNmvp1FkZF0bgkmn3HW5OefhgrXWiiE5nloowaNyOgRp3RWqKOO
+xkTklb9VWkEBADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img47.gif
+
+R0lGODlhCAAHAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAIAAcAAAIODI5nEO3MnJkPyqhWywUAOw==
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img48.gif
+
+R0lGODlhmgAYAIAAAAAAAL+/vyH5BAEAAAEALAAAAACaABgAAAL+jI+pywj8mpwr0kttrhF452lY
+IxrfiCpnsqaQFsZWa85t6bIqnmM43avtQIfS6gELQlTKAI9kfLp+MBtr5pTqUMamdnjlSqjFo+iY
+NU2Aa2ZZthmHiuCaGb50Cx3htFMNNdVntzcmV1eY9Of3soNHVAaY9iRTOadXuMdmeQlyc9ZRtcgW
+OciYeWIjxVlZYbp4+maJWVr6OSlaq0tze7f2RXtLaEjC0dfbOaqblbuL9GosBqn5TJz3ikYHS5QK
+Ou0cIyjNV0tKDqUoq26XzFjVGgxcPK4dJL98IXx6v2zedI2PXr4c3ph9Gwjtn7WDChsRDKWtWYYo
+DX2046cE45UpO118bNRYMaTIkSRLmjyJMqXKlSxbunwJM6bMmTRr2ryJM6fOnTwVFgAAOw==
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img49.gif
+
+R0lGODlhBQAHAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAFAAcAAAIJDI6hCKb7XEwFADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img50.gif
+
+R0lGODlhPgAMAIAAAAAAAL+/vyH5BAEAAAEALAAAAAA+AAwAAAJajI+py+0GIni02hXh3bzl8HXd
+tJGaZEoQiaoqE1omSIPsh785NsvI9DrsVkJhz9ZKHmunIHOWSvGULcwvE7vdjKtlzGdk/brEsvPK
+yaESrq2GDBvZRPTl41UAADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img51.gif
+
+R0lGODlhsgAYAIAAAAAAAL+/vyH5BAEAAAEALAAAAACyABgAAAL+jI+py+0KnoTzRXerzIsf4CXg
+OCKkQYZaJ6oV+JUmHMM0w90r6vJQL7tkbLNAb4dqIX3J5ixnanh0KypLKY3Qhk7jcWnEInPCafhT
+vMbAX+Za6gvGz8e2SDzhvs9oqzu9l4e2MXXiJMRTVpKCYRcF6HWTsoVjRnn3g2cYaVgo0+UVKgpG
+OCYGRTfkUtgUYuWq1+qms0VWpEpKODmpxkSrNatChQuL52tbFlgL2enItstLkfYbKlmMGdnBikVt
+gzvI93fil6ttOo38Oeq7p64snLy2uZ78nehe3rizHY6Y+ciHHzN44OiYG0REHL58FvY9UWVtE5lm
+5ACCulcD4qdgieoEMnzhsIqtcOWoLTFpZ5izj2xCvqno8k8Vbm2usbxp8UU8mSfNkFoW6B8knDfn
+6XKVD2kuoySxYSQKNarUqVSrWr2KNavWrVy7ev0KNqzYsWTLmj2LNq3atWzb3iwAADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img52.gif
+
+R0lGODlhSwAQAIAAAAAAAL+/vyH5BAEAAAEALAAAAABLABAAAAJqjI+py+0AQYAnmiid3rxhmWGX
+2JXmM4FXWp3ui1CgbH3wvVATzvf76gu6QhmhqXib9T40pEJXsll8JB00ceVYnUFoMTtiMp9EY2t0
+Jott2LTRS+Sij2g5Dh722BnlPcxbARZzxGaWZIhTAAA7
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img53.gif
+
+R0lGODlhKQAMAIAAAAAAAL+/vyH5BAEAAAEALAAAAAApAAwAAAI6jI+py+DAoozOwIlxDTuf64Gc
+1VGihjzfuJSZqJKn/NS1AueNzbssmZp9hBLdsEjc0XhFz8r3csoMBQA7
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img54.gif
+
+R0lGODlhKAAMAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAoAAwAAAI7jI+pu+DAomTOwIlnDTtb/x3P
+xUVdRpbbibBYCpEuN9ajAq9pa/c4H9slZpLc4yUsXm6eZJEGEkVplwIAOw==
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img55.gif
+
+R0lGODlhJgAMAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAmAAwAAAI5DBCpy+16IHq0mjOv3S+mTIHc
+N2Fec47kajipqsXiZdZYWLKLzc/Sp9v5OJ5cZ2gpvlAw2o3YbBQAADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img56.gif
+
+R0lGODlhLAAMAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAsAAwAAAI/jB8AyO2f1lOwVkUdtnzKtnyQ
+2EWaQYIplyHZerQlmmKbZue2x7SyqwvyXMARzCIj/XpHI813m8wiuynRiigAADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img57.gif
+
+R0lGODlhJwALAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAnAAsAAAJATACmy4e5Xny02aPg1DjzayDh
+l3DmB4ohU6IjmJLOOsEXCeWsC6uZ1wHaaiwPyjdUaXySXfEHDeI2TeaSkmtaCgA7
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img58.gif
+
+R0lGODlhiQAeAIAAAAAAAL+/vyH5BAEAAAEALAAAAACJAB4AAAL2jI+py40AnJy02ouzi7r7D4YJ
+JJbmiUIqyopkW6lvOMNcVsPbWubsjfHpFhEeDdhCWpQKZs8g7DhP051xVB1KZVhZ8co9eIne7xdK
+1v44yplb/EDDm7xXuF3OM/L8vn9MJ/dw8xZQEyaINWdoh/eXpUYEhSdGODl4uFcJx8YU9SSRuXGp
+SGpoyihayjhp1/AJArvIOjLnSWiZyBYXSFoW2nMGdHWZu9lKRsJXeQg4uEj8GsyK64MIGZl9cUdr
+aa2qHb51ilrdiVYorh6UuOr+vB4fg1orqSmPH4pon9/v/w8woMCBBAsaPIgwocKFDBs6fAgxosAC
+ADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img59.gif
+
+R0lGODlhpwAiAIAAAAAAAL+/vyH5BAEAAAEALAAAAACnACIAAAL+jI+py63gopy02ouzBtBw9FWh
+12nmiaZY2ZWBG3EwrNb2vbJQOE79iwsKhwvaqyUzPmZKovO5Wh6STRATivVVg0zdiNr7/S5jrqpM
+nHnWMm0CTYHbtlr6zZVcH+v4U/tpFwMkWCN35jfoFNjQErPoo/j4prdEdfT1N5X3BnbJSVkkKWGI
+uNHIgDkFygJSiURitekKJpsVWWulqRq20ydFmQobSms5S3yMnKyMqyv8u8eG19v60Jx4DUdqIqo9
+Sej86TytG/bMwxOOKurm+DUqXQ0Kbc6KrXqfK0yrKbcu9SGNximA3+QBzMQsDzESYopZ87LtzDQv
+Ss5ZROjNlsZRIZvGsSqzgyE/jNQ2mpwTEhxFfX/GqXN3MmaKU6HU3fEnM+egbKhw4NQp02ERoESL
+Gj2KNKnSpUybOn0KNarUqVSrWr2KNavWrVy7ev0KlmsBADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img60.gif
+
+R0lGODlhzgAYAIAAAAAAAL+/vyH5BAEAAAEALAAAAADOABgAAAL+jI+py+3fAJxB0qss3jz2D26A
+ho2JGT6oOJKVC65vSteHXMKwPXOai+u0gLziZzdpZZC349GyUtZwQQjTKHouqoirwxv53cAXqkRa
+CefET7YBOPyeZd4r2j1Gy8cv8v70BoXE9UeYJMiXaKhEZ6eC2KNIRsLop3Zylog5xKnXFLjZufND
+2gXJwIgZ2rklqRp5GZi5yomqI8UlKroEShv32tj1aVtlpssbSTUc2zeo67xksmgJangIC4sI7bm4
+Fyw8w4SibX1Na0X9G6KumRb+psrtGGYG+O4O7i5djh5tmU7tT6s8uIj0seeBWT5ZBc/p40dPT0B8
+WNYlKVPHycVGij4mcqRR7p8VLSM/ljCJcosdPxBJKkxpC6ZMeFNSepy5EKfOnTx7+vwJNKjQoUSL
+Gj2KNKnSpUybOn0KNarUqVSrWoVQAAA7
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img61.gif
+
+R0lGODlhJQAXAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAlABcAAAJJjI+pi+DAokzOwHkqtlfjd01h
+AGaSF42QhjJP2pDZmL6KytJnazUV7wL2ZjaRcMY5+nQuEjO4IUan1Kr1is1qt9yu9wsOi8eIAgA7
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img62.gif
+
+R0lGODlh5wAgAIAAAAAAAL+/vyH5BAEAAAEALAAAAADnACAAAAL+jI+py+0Po5z0gAvCtVvjCobi
+SJYm2aFYlnnd2p7yTNd29Zksa+zWDQwKh6XUaLNLKmPEplNmXEQbUyoT8hpmhdent9dNVKVhxtj8
+46aD5a/ukbNG4q4V4iwFn2CpFn7f1AYFJ9gjwXNYKOZB5KN19MeIE2nogFQFY1mJRXdn1wkE6plp
+BxaVqcCXJKnRSjb5Uyh7+epaqzjnh+vWF+N3t2Y7qmvqi6nKl2rchXyMqLypXKqi58bJEctEG+y5
+RjfWjAqMLa1arskqZvwWbS1X3Wq03e7tK3xGOQ5PZbmal64PYAhiu7z0ytZNXi1J0wR2m6BNkaBL
+2tLY45YvlcVpZ+4W9ol2kR6rF+HQJUpm8l+cXuvqcMhIrg5MJ5/MuRw25aMpEAVF9OwINKhQGj+H
+Gj2KNKnSpUybOn0KNarUqVSrWr2KNavWrVy7ev0KNqzYsWTLmj2LNq3atWzbun0LN67cuXTrBi0A
+ADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img63.gif
+
+R0lGODlhiwAPAIAAAAAAAL+/vyH5BAEAAAEALAAAAACLAA8AAAK3jI+py+0PEQCx2ouz3nLyD4bi
+543mKU6qeqxUVKLJK9dMHHhsXuE2bQu2gCUdzYXz1YA/YWz32j2UMqZF2qBOtbNOy8DtKJGUlZjp
+UpBzxq8V/HY8eTdk8Hn86ulgNTQqhTVEljZzxJUUF4Knl8gmsTAHRxRHaNc1JEf5c9i4mRSZ2bdZ
+h0Ea6bjU2feYCWooaiZaeuUFCWerOpu3R+QXa6nIB7OGy3apaoQsOygoeZwhLDRNnVAAADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img64.gif
+
+R0lGODlhpgAXAIAAAAAAAL+/vyH5BAEAAAEALAAAAACmABcAAAL+jI+py+0Po0yggnCn3rz7DzqV
+MYZSppTmyrYLqrpvasn2PUMwntN8/+ugRJbYb4hQFQ81TKZYa76QkaXziYVedS7oyEqShsXJnXMc
+HmPTPs66WbLGqRSZ0oxJMvVTpnHut8dW5uXFIAY4CENVSKbW2HZGMngWQyd5NYSXpzjVCEYhtbko
+GAppcidoeWF5+KaJhjlHZ1TFagZHuiVip8u5isnZFseXG7gbefKkmijpWNflO1oqHKpm6oz3PKkB
+GrXGjXwY/VXo96dFuG1zGVSlY+4uP8/THrtMn68vXx6+/w+QxSt7AQsabIBv3cGFDBs6fAgxosSJ
+FCtavIgxo8YEjR0KAAA7
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img65.gif
+
+R0lGODlhgwAZAIAAAAAAAL+/vyH5BAEAAAEALAAAAACDABkAAAL2jI+pq8APo5w0uYopuItXH4GP
+iG3ZOZKGWaqNi7DoOtcHLGtwvK99+LMxcMFbMJcSIjubZnH0auqkECeRqgwFlhar89X1GYeXnLnM
+OYuNz3V1Kxzz1iYSS4bdomlwetqtI+HQlhRzc6jXgCjH15d4t9jHVbVTR+m1hLQ3CMhnCbg5J8np
+Q4jnNZqCKaIpRornSZqI+DmbCgIZ6aGmd0c41PWVOovK2IuFbEU7mNZsyNYZFwnlGCjYyBRNySMs
+DQY0SRZe2tOtEWbrja7OLq3p3P4cP4/CakyPnz+Dqd/v/w8woMCBBAsaPIgwocKFDBs6fAgxosIC
+ADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img66.gif
+
+R0lGODlh7wAYAIAAAAAAAL+/vyH5BAEAAAEALAAAAADvABgAAAL+jI+py+3gopy02ouzTnB7D3RB
+GFLidH6ceqXsW77yI8buEqO3ms9N7+MFh4eTbYcA0oZKoqHpbCGjGmNSAsVNN1nmlhrpjkjF45NE
+JguLV62a9mahv3I0+LPtHPV881gxN6fV9jT4t3SY0eOnSMcYJfYzFXeYY1mGZ8UGyBfWicVp9BkG
+WOh5hgISydBltzlCeJlJCFtq+vBKyhlrsitW06tahVSyeDa6Fxp4Y5y7WTwW1wkhuLL7TB2tRJyH
+Su1Kexy5arhs06Zm2accaIiaCPznqlmcbstB/31ufX0bX78vXC1HKTTVwvSuXZJ67w5SUrRCXZl5
+3xZShLcMoTiDM+oURkPYMV3FjWn0kBS1EGTBiQ3vpLLY4pguSsy+rBM4EOLHcPFOYQhJzmXLKkNx
+FHUBjtVRZUQTOdOG5SEolUItBAVDR6fQHVelpCxa9UdYXEzCcoXEr+vYtWzbSg2Ssa3cuXTr2r2L
+N6/evXz7+v0LOLDgwYQLGz6MOLHixYzBFAAAOw==
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img67.gif
+
+R0lGODlhBQAHAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAFAAcAAAIJDI6hCKb7XEwFADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img68.gif
+
+R0lGODlhKAAcAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAoABwAAAJtjI+pawAMY3yBynldpfa49yXa
+1XDdWCJodnpd2pDlCa5wJeP6xiso/fmFVD3VaDW0LYI+i+34Wg6NLlFVwjQ6aa6oaFq89TReKnRJ
+FTO25V0uTVLm2ms6RI59e/T8vv8PGCg4SFhoeIiYqChRAAA7
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img69.gif
+
+R0lGODlhPQAYAIAAAAAAAL+/vyH5BAEAAAEALAAAAAA9ABgAAAKXjI8ZoI0AoZtLxSUfo+lWbm1G
+NooYGJ5od5CtaK6fJ5/029a5qksuPtIJJ4wfZmMcDiMx3o8JjUqnUI2RlBQ2QcwONpYlboFW07M5
+JnJTmSS6Ft49Xun3Edb93MHmdGrehhQ06ME3B2emN+OEc0YmkxhYkkjogqVEd0cHs/OE2YMUuvYJ
+KTooRopo6eeX6voKGys7S0taAAA7
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img70.gif
+
+R0lGODlhHwAYAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAfABgAAAJRjI8ZoMgJ4pLuGXrtrDzje3xZ
+qIhSpI0glJ6pupQvI05PjaNyOPc5v2OZMD+hZhjkUGoxHurobKykQCrLOsVWpUzsy6ENi8fksvmM
+TqvX7HIBADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img71.gif
+
+R0lGODlhCAAHAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAIAAcAAAIODI5nEO3MnJkPyqhWywUAOw==
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img72.gif
+
+R0lGODlhKAAcAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAoABwAAAJtjI+pawAMY3yBynldpfa49yXa
+1XDdWCJodnpd2pDlCa5wJeP6xiso/fmFVD3VaDW0LYI+i+34Wg6NLlFVwjQ6aa6oaFq89TReKnRJ
+FTO25V0uTVLm2ms6RI59e/T8vv8PGCg4SFhoeIiYqChRAAA7
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img73.gif
+
+R0lGODlhCAAHAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAIAAcAAAIODI5nEO3MnJkPyqhWywUAOw==
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img74.gif
+
+R0lGODlhHAAYAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAcABgAAAJQjI8GydvtFJiHpmmtqijuezna
+yASeKUbZ+UGgWWoVFsJuiXb0HXsYm9NJdLJZLTj8vYxF1a41OzV9wEdUWjXilrjs9gsOi8fksvmM
+TqvXgQIAOw==
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img75.gif
+
+R0lGODlhDwAOAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAPAA4AAAIgjI8BkK3G3FkqymkvvXDzyCzi
+Nj7e93CmSmUO6CJkfBQAOw==
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img76.gif
+
+R0lGODlhDwAOAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAPAA4AAAIhjI8Bmw3G2nmKShgvypLyFDHL
+GI5KpW1nelqXyHouKGsFADs=
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img77.gif
+
+R0lGODlhDwAOAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAPAA4AAAIgjI8HyQbb0IIxPFudrq/TDHmd
+4lkfh2XYyVxsEr5OXBUAOw==
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://bellard.org/pi/pi_n2/img78.gif
+
+R0lGODlhHgAeAIAAAAAAAL+/vyH5BAEAAAEALAAAAAAeAB4AAAJTjI+pAe29ooKyRmBzok9LzByg
+t4HcSBrjqT7UhbYqE9NT+Yaxg+T9GsKJPiZMzYYUFWdJJfMnY014paaFOj1WfKmFtgsOi8fksvmM
+TqvX7LY7UQAAOw==
+
+------MultipartBoundary--ub6IO03i7m4GSlOCVScx9sTgOUqOd7J2AOVXsg3r4P------

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdlib>
 
 void mul(const uint64_t x, const uint64_t y, uint64_t& cur, uint64_t& carry) {
     constexpr uint64_t shift = (sizeof(uint64_t) * 4UL);
@@ -21,11 +22,11 @@ void mul(const uint64_t x, const uint64_t y, uint64_t& cur, uint64_t& carry) {
 }
 
 // s = a * x + y
-void saxpy(uint64_t* s, uint64_t& ssize, const uint64_t* a, uint64_t& asize, const uint64_t x, const uint64_t* y, const uint64_t& ysize) {
+void saxpy(uint64_t* s, uint64_t& ssize, const uint64_t* a, const uint64_t asize, const uint64_t x, const uint64_t* y, const uint64_t ysize) {
     uint64_t p_carry = 0; // carry for product
     uint64_t new_ssize = asize + 1;
     
-    if (y == 0 && ysize == 0) {
+    if (y == 0 || ysize == 0) {
         for (size_t i = 0; i < new_ssize; i++) {
             mul(a[i], x, s[i], p_carry);
         }
@@ -54,24 +55,16 @@ int main(int argc, char* argv[]) {
         std::cerr << "argc != 2" << std::endl;
         return -1;
     }
-
     const uint64_t N = std::stoull(argv[1]);
-   
-    // Any bigger and (x2 * 10) gets close to overflowing
-    if (N > 369'000'000UL) { 
+    if (N > 369'000'000UL) {    // Any bigger and (x2 * 10) gets close to overflowing
         std::cerr << "N > 369,000,000" << std::endl;
         return -1;
     }
 
-    uint64_t n0[N];
-    uint64_t n1[N];
-    uint64_t n2[N];
-
-    for (auto i = 0; i < N; i++) {
-        n0[i] = 0;
-        n1[i] = 0;
-        n2[i] = 0;
-    }
+    uint64_t* buf = reinterpret_cast<uint64_t*>(calloc((N * 3), sizeof(uint64_t)));
+    uint64_t* n0 = &buf[0];
+    uint64_t* n1 = &buf[N];
+    uint64_t* n2 = &buf[N * 2];
 
     n0[0] = 1;
     n2[0] = 1;
@@ -80,14 +73,20 @@ int main(int argc, char* argv[]) {
     uint64_t n1size = 0;
     uint64_t n2size = 1;
 
-    uint64_t x0 = 5;
-    uint64_t x2 = 30;
-    uint64_t x3 = 3;
-
     char y;
     for (uint64_t i = 1; i <= N; ++i) {
+        const uint64_t x3 = (5 * i) - 2;
+        const uint64_t x0 = (5 * i) * ((2 * i) - 1);
+        const uint64_t x2 = (3 * ((3 * i) + 1) * ((3 * i) + 2)) >> 1;
+
+        /*
+        y = ((n0 * x3) + n1) // n2
+        n1 = (((n0 * x3) + n1) % n2) * (x2 * 10)
+        n2 = (n2 * x2)
+        n0 = (n0 * x0)
+        */
+
         saxpy(n1, n1size, n0, n0size, x3, n1, n1size); // n1 = (n0 * x3) + n1 
-           
         for (y = '0'; y <= '9'; ++y) { // y = n1 // n2; n1 %= n2
             if (n1size < n2size) { // break once n1 < n2
                 break; 
@@ -110,23 +109,13 @@ int main(int argc, char* argv[]) {
                 n1size--;
             }
         }
-
-        std::cout << y;
-
+        std::cout << y << std::flush;
         saxpy(n0, n0size, n0, n0size, x0, 0, 0);        // n0 *= x0
         saxpy(n1, n1size, n1, n1size, (x2 * 10), 0, 0); // n1 *= x2 * 10
-        saxpy(n2, n2size, n2, n2size, x2, 0, 0);        // n2 *= x2 + 0
-        
-        x0 += (20 * i) + 5;
-        x2 += 27 * (i + 1);
-        x3 += 5;
-
-        if (i % 128 == 0) {
-            std::cout << std::endl << std::flush;
-            std::cerr << i << std::endl << std::flush;
-        }
+        saxpy(n2, n2size, n2, n2size, x2, 0, 0);        // n2 *= x2
     }
     std::cout << std::endl << std::flush;
+    free(buf);
 }
 
 /*
@@ -146,4 +135,21 @@ no vector saxpy and muleq
 18.910
 18.806
 
+./run 300000 > pi_50k.txt  647.86s user 1.43s system 98% cpu 10:58.73 total
+
+(base) aman@mac pi % time ./run2 4992
+Decimal digits of pi at position 4992: 132604721
+./run2 4992  8.67s user 0.00s system 99% cpu 8.708 total
+(base) aman@mac pi % time ./run2 10000
+Decimal digits of pi at position 10000: 856672279
+./run2 10000  33.49s user 0.03s system 99% cpu 33.807 total
+(base) aman@mac pi % time ./run2 20000
+Decimal digits of pi at position 20000: 820385653
+./run2 20000  129.75s user 0.11s system 99% cpu 2:10.88 total
+(base) aman@mac pi % time ./run2 40000
+Decimal digits of pi at position 40000: 119299015
+./run2 40000  504.35s user 0.33s system 99% cpu 8:28.43 total
+(base) aman@mac pi % time ./run2 80000
+Decimal digits of pi at position 80000: 694828436
+./run2 80000  1967.89s user 0.97s system 96% cpu 33:59.64 total
 */
